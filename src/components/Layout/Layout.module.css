@@ -1,0 +1,127 @@
+:root {
+    --primary-color: #DA251D;
+    --sidebar-bg: #212529;
+    --body-bg: #f4f7fa;
+    --card-bg: #ffffff;
+    --border-color: #dee2e6;
+    --sidebar-width: 240px;
+}
+
+.appContainer {
+    display: flex;
+}
+
+.mainWrapper {
+    flex-grow: 1;
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.3s ease-in-out;
+}
+
+.mainContent {
+    padding: 24px;
+}
+
+.appSidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    color: white;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    flex-shrink: 0;
+    padding-top: 20px;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebarHeader {
+    padding: 0 24px 24px 24px;
+    font-weight: bold;
+    font-size: 18px;
+    color: #fff;
+}
+
+.navList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navList a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 24px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.navList a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.navList a.active {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+}
+
+.appHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    height: 64px;
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.userProfile {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.userProfile:hover {
+    background-color: var(--body-bg);
+}
+
+.sidebarToggleBtn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+}
+.sidebarToggleBtn svg {
+    width: 24px;
+    height: 24px;
+}
+
+@media (max-width: 992px) {
+    .appSidebar {
+        transform: translateX(-100%);
+    }
+    .appSidebar.sidebarOpen {
+        transform: translateX(0);
+    }
+    .mainWrapper {
+        margin-left: 0;
+    }
+    .sidebarToggleBtn {
+        display: block;
+    }
+}
