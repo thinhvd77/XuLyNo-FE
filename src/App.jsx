@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import './index.css'; // File CSS toàn cục
 import UserLayout from './components/UserLayout/UserLayout'; // Import layout mới
 import MyCases from './pages/MyCases/MyCases'; // Import trang mới
+import ImportPage from './pages/Import/Import';
 
 function App() {
   return (
@@ -31,6 +32,14 @@ function App() {
           <UserLayout>
             <MyCases />
           </UserLayout>
+        } 
+      />
+      <Route 
+        path="/import" 
+        element={
+          <Layout>
+            <ImportPage />
+          </Layout>
         } 
       />
     </Routes>

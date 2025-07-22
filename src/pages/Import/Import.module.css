@@ -1,0 +1,175 @@
+.pageHeader {
+    margin-bottom: 24px;
+}
+.pageHeader h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+}
+.pageHeader p {
+    color: #6c757d;
+    margin: 4px 0 0 0;
+}
+
+.card {
+    background-color: #ffffff;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.dropzone {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+.dropzone:hover, .dropzone.dragActive {
+    border-color: #DA251D;
+    background-color: #fbe9e7;
+}
+.uploadIcon {
+    width: 48px;
+    height: 48px;
+    color: #DA251D;
+    margin: 0 auto 16px auto;
+}
+.fileTypeHint {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.fileList {
+    margin-top: 24px;
+}
+.fileList h3 {
+    margin-top: 0;
+    font-size: 16px;
+}
+.fileList ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.fileListItem {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    padding: 12px;
+    transition: border-color 0.3s;
+}
+
+/* Thêm style cho các trạng thái của item */
+.fileListItem.success {
+    border-color: #00542B;
+    background-color: #e8f5e9;
+}
+.fileListItem.error {
+    border-color: #DA251D;
+    background-color: #fbe9e7;
+}
+
+.fileDetails {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fileInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.fileIcon {
+    width: 20px;
+    height: 20px;
+    color: #6c757d;
+    flex-shrink: 0;
+}
+.fileName {
+    font-weight: 600;
+}
+.fileSize {
+    font-size: 12px;
+    color: #6c757d;
+    margin-left: 8px;
+}
+
+.fileStatus {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.statusMessage {
+    font-weight: 500;
+}
+.success .statusMessage { color: #00542B; }
+.error .statusMessage { color: #DA251D; }
+.waiting .statusMessage { color: #6c757d; font-style: italic; }
+.uploading .statusMessage { color: #0d6efd; } /* Bootstrap primary blue */
+
+.removeBtn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #6c757d;
+}
+.removeBtn:hover {
+    color: #DA251D;
+}
+.removeBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+
+/* --- CSS MỚI CHO BẢNG KẾT QUẢ --- */
+.resultSummary {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #d0e4d2; /* Light green border */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 16px;
+}
+.resultItem {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+.resultItem span {
+    color: #6c757d;
+}
+.resultItem strong {
+    font-weight: 600;
+}
+.created { color: #198754; } /* Bootstrap success green */
+.updated { color: #0d6efd; } /* Bootstrap primary blue */
+
+
+.actions {
+    margin-top: 24px;
+    text-align: right;
+}
+.actions button {
+    padding: 12px 24px;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #DA251D;
+    transition: background-color 0.2s;
+}
+.actions button:hover:not(:disabled) {
+    background-color: #c32018;
+}
+.actions button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
