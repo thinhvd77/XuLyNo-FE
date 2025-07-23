@@ -22,7 +22,7 @@ function UserLayout({ children }) {
     useEffect(() => {
         const token = localStorage.getItem('token');
         const decodedUser = jwtDecode(token);
-        console.log('Decoded user:', decodedUser);
+        // console.log('Decoded user:', decodedUser);
 
         if (decodedUser) {
             setUser({
