@@ -99,3 +99,15 @@
 .pageInfo {
     color: var(--text-light);
 }
+
+.loading, .error, .noData {
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+    color: var(--text-light);
+}
+
+.error {
+    color: var(--primary-color);
+    font-weight: 500;
+}

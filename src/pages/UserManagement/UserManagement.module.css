@@ -1,0 +1,112 @@
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.pageHeader h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.addButton {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #00542B; /* Agribank Green */
+    transition: background-color 0.2s;
+}
+.addButton:hover {
+    background-color: #003e1f;
+}
+
+.tableContainer {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.dataTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+.dataTable th,
+.dataTable td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+.dataTable thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #6c757d;
+}
+.dataTable tbody tr:hover {
+    background-color: #fbe9e7;
+}
+.dataTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+}
+.statusBadge.active {
+    background-color: #198754; /* Bootstrap Green */
+}
+.statusBadge.disabled {
+    background-color: #6c757d; /* Bootstrap Gray */
+}
+
+.actionCell {
+    display: flex;
+    gap: 8px;
+}
+.actionButton {
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.actionButton:hover {
+    opacity: 0.8;
+}
+
+.actionButton { /* Edit button */
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #333;
+}
+.actionButton.disable {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+    color: #664d03;
+}
+.actionButton.delete {
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+    color: #842029;
+}
+
+.message {
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+    color: #6c757d;
+}
+.error {
+    color: #DA251D;
+    font-weight: 500;
+}

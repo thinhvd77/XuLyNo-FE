@@ -1,19 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './MyCases.module.css';
-import Pagination from '../../components/Pagination/Pagination'; // Import component mới
+import Pagination from '../../components/Pagination/Pagination';
+import { jwtDecode } from "jwt-decode";
 
-// Dữ liệu giả, trong thực tế sẽ lấy từ API
-const initialCases = [
-    { id: 'HS-2025-07-123', client: 'Công ty TNHH BĐS Thịnh Phát', debt: 12550000000, status: 'Đã khởi kiện', updated: '20/07/2025' },
-    { id: 'HS-2025-07-115', client: 'Công ty Vận tải Sài Gòn', debt: 7200000000, status: 'Đang xử lý', updated: '18/07/2025' },
-    { id: 'HS-2025-05-101', client: 'Công ty Dệt may An Phước', debt: 3500000000, status: 'Mới', updated: '14/07/2025' },
-    // Thêm dữ liệu để thấy phân trang
-    { id: 'HS-2025-05-100', client: 'Ông Trần Văn Nam', debt: 1200000000, status: 'Mới', updated: '13/07/2025' },
-    { id: 'HS-2025-04-098', client: 'Công ty Xây dựng Hòa Bình', debt: 8900000000, status: 'Đang xử lý', updated: '12/07/2025' },
-    { id: 'HS-2025-04-097', client: 'Tập đoàn Hoàng Anh Gia Lai', debt: 25000000000, status: 'Đã khởi kiện', updated: '11/07/2025' },
-];
-
-const ITEMS_PER_PAGE = 5; // Số lượng hồ sơ trên mỗi trang
+const ITEMS_PER_PAGE = 5;
 
 const StatusBadge = ({ status }) => {
     const statusClass = {
@@ -24,28 +15,76 @@ const StatusBadge = ({ status }) => {
     return <span className={`${styles.statusBadge} ${statusClass[status] || ''}`}>{status}</span>
 };
 
+
 function MyCases() {
+    const [allCases, setAllCases] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const navigate = useNavigate();
+
+    // Sử dụng useEffect để fetch dữ liệu từ API khi component được mount
+    useEffect(() => {
+        const fetchCases = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                // Nếu không có token, người dùng chưa đăng nhập, chuyển về trang login
+                navigate('/login');
+                return;
+            }
+
+            try {
+                setIsLoading(true);
+                setError(null);
+                const response = await fetch('http://localhost:3000/api/cases/my-cases', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Không thể tải dữ liệu hồ sơ.');
+                }
+
+                const data = await response.json();
+                setAllCases(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchCases();
+    }, [navigate]);
 
     // Lọc dữ liệu dựa trên thanh tìm kiếm và bộ lọc trạng thái
     const filteredCases = useMemo(() => {
-        setCurrentPage(1); // Reset về trang 1 mỗi khi lọc
-        return initialCases.filter(c => {
-            const searchMatch = c.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                c.client.toLowerCase().includes(searchTerm.toLowerCase());
-            const statusMatch = statusFilter ? c.status === statusFilter : true;
+        setCurrentPage(1);
+        return allCases.filter(c => {
+            const searchMatch = c.case_id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                c.customer_name.toLowerCase().includes(searchTerm.toLowerCase());
+            const statusMatch = statusFilter ? c.state === statusFilter : true;
             return searchMatch && statusMatch;
         });
-    }, [searchTerm, statusFilter]);
+    }, [searchTerm, statusFilter, allCases]);
 
     // Tính toán dữ liệu cho trang hiện tại
     const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
     const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
     const currentCases = filteredCases.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(filteredCases.length / ITEMS_PER_PAGE);
-
+    
+    if (isLoading) {
+        return <div className={styles.loading}>Đang tải dữ liệu hồ sơ...</div>;
+    }
+    
+    if (error) {
+        return <div className={styles.error}>Lỗi: {error}</div>;
+    }
 
     return (
         <>
@@ -77,7 +116,7 @@ function MyCases() {
                 <table className={styles.dataTable}>
                     <thead>
                         <tr>
-                            <th>Mã HS</th>
+                            <th>Mã Khách hàng</th>
                             <th>Tên Khách hàng</th>
                             <th>Dư nợ (VND)</th>
                             <th>Trạng thái</th>
@@ -86,16 +125,22 @@ function MyCases() {
                         </tr>
                     </thead>
                     <tbody>
-                        {currentCases.map(c => (
-                            <tr key={c.id}>
-                                <td>{c.id}</td>
-                                <td>{c.client}</td>
-                                <td>{c.debt.toLocaleString('vi-VN')}</td>
-                                <td><StatusBadge status={c.status} /></td>
-                                <td>{c.updated}</td>
-                                <td className={styles.actionCell}><a href="#">Cập nhật</a></td>
+                        {currentCases.length > 0 ? (
+                            currentCases.map(c => (
+                                <tr key={c.case_id}>
+                                    <td>{c.customer_code}</td>
+                                    <td>{c.customer_name}</td>
+                                    <td>{parseFloat(c.outstanding_debt).toLocaleString('vi-VN')}</td>
+                                    <td><StatusBadge status={c.state} /></td>
+                                    <td>{new Date(c.last_modified_date).toLocaleDateString('vi-VN')}</td>
+                                    <td className={styles.actionCell}><a href="#">Cập nhật</a></td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="6" className={styles.noData}>Không tìm thấy hồ sơ nào.</td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
                 <div className={styles.paginationContainer}>

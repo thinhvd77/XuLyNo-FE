@@ -1,11 +1,13 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login/Login';
 import Layout from './components/Layout/Layout';
+import AdminLayout from './components/AdminLayout/AdminLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import './index.css'; // File CSS toàn cục
 import UserLayout from './components/UserLayout/UserLayout'; // Import layout mới
 import MyCases from './pages/MyCases/MyCases'; // Import trang mới
 import ImportPage from './pages/Import/Import';
+import UserManagement from './pages/UserManagement/UserManagement'; // Import trang quản lý người dùng
 
 function App() {
   return (
@@ -41,6 +43,15 @@ function App() {
             <ImportPage />
           </Layout>
         } 
+      />
+      {/* Admin Routes */}
+      <Route
+        path="/admin"
+        element={
+          <AdminLayout>
+            <UserManagement />
+          </AdminLayout>
+        }
       />
     </Routes>
   );

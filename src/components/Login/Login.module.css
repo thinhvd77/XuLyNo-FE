@@ -6,6 +6,9 @@
     width: 100%;
     min-height: 100vh;
     padding: 1rem;
+    background-image: url("../../assets/bg.svg");
+    background-size: cover;
+    /* background-position: center; */
 }
 
 :root {

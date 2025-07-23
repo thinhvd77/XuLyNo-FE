@@ -2,20 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
 import logo from '../../assets/Logo.png';
+import { jwtDecode } from "jwt-decode";
 
 const EyeIcon = () => (<svg className={styles['eye-icon']} xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" /><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" /></svg>);
 const EyeSlashIcon = () => (<svg className={styles['eye-slash-icon']} xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588M5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z" /><path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12z" /></svg>);
-
-const decodeToken = (token) => {
-    try {
-        // Trong ứng dụng thực tế, bạn sẽ dùng thư viện như jwt-decode
-        // Ở đây, chúng ta chỉ parse chuỗi JSON đã được mã hóa Base64
-        return JSON.parse(atob(token.split('.')[1]));
-    } catch (e) {
-        console.error("Failed to decode token:", e);
-        return null;
-    }
-};
 
 function Login() {
     const [username, setUsername] = useState('');
@@ -53,12 +43,17 @@ function Login() {
             alert('Đăng nhập thành công!');
             //save the token and redirect the user
             localStorage.setItem('token', data.access_token);
-            const decoded = decodeToken(data.access_token);
+            const decoded = jwtDecode(data.access_token);
             // console.log('Decoded token:', token);
             
             // Redirect based on user role
             if (decoded.role === 'administrator') {
-                navigate('/import');
+                navigate('/admin');
+            }
+            else if (decoded.role === 'employee') {
+                navigate('/my-cases');
+            } else {
+                navigate('/dashboard');
             }
 
         } catch (err) {

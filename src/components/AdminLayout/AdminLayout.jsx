@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import styles from './UserLayout.module.css';
+import styles from './AdminLayout.module.css';
 import { jwtDecode } from "jwt-decode";
+import logo from '../../assets/logo_2.png'; // Import logo image
 
 const SvgIcon = ({ path }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={styles.icon} viewBox="0 0 24 24" fill="currentColor">
@@ -22,7 +23,7 @@ function UserLayout({ children }) {
         const token = localStorage.getItem('token');
         const decodedUser = jwtDecode(token);
         console.log('Decoded user:', decodedUser);
-        
+
         if (decodedUser) {
             setUser({
                 name: decodedUser.fullname || 'Cán bộ',
@@ -40,23 +41,26 @@ function UserLayout({ children }) {
 
     return (
         <div className={styles.appContainer}>
-            <aside className={styles.appSidebar}>
-                <div className={styles.logo}>AGRIBANK - XỬ LÝ NỢ</div>
+            {/* <aside className={styles.appSidebar}>
+                <div className={styles.logo}>ADMINISTRATOR</div>
                 <ul className={styles.navList}>
                     <li>
                         <NavLink to="/my-cases" className={({ isActive }) => isActive ? styles.active : ''}>
-                            <SvgIcon path="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z" />
-                            <span>Hồ sơ của tôi</span>
+                            <SvgIcon path="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                            <span>Quản lý Người dùng</span>
                         </NavLink>
                     </li>
                 </ul>
-            </aside>
+            </aside> */}
 
             <div className={styles.mainWrapper}>
                 <header className={styles.appHeader}>
+                    <div className={styles.logo}>
+                        <img src={logo} alt="" />
+                    </div>
                     <div className={styles.userMenu} onClick={() => setMenuOpen(!isMenuOpen)}>
                         <span onClick={() => setMenuOpen(!isMenuOpen)}>
-                            Chào, <strong>{user ? user.name : '...'}</strong> ({user ? user.role : '...'}) ▾
+                            <strong>{user ? user.name : '...'}</strong> ▾
                         </span>
                         {isMenuOpen && (
                             <div className={styles.dropdownContent}>
