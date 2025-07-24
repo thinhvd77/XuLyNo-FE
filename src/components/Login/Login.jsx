@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
 import logo from '../../assets/Logo.png';
 import { jwtDecode } from "jwt-decode";
+import toast from 'react-hot-toast';
 
 const EyeIcon = () => (<svg className={styles['eye-icon']} xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" /><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" /></svg>);
 const EyeSlashIcon = () => (<svg className={styles['eye-slash-icon']} xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588M5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z" /><path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12z" /></svg>);
@@ -32,28 +33,29 @@ function Login() {
             // If the response is not OK (e.g., 401, 500), handle it as an error
             if (!response.ok) {
                 // Try to get a specific error message from the server's response body
-                const errorData = await response.json().catch(() => ({})); // Gracefully handle non-JSON responses
-                const errorMessage = errorData.message || `Error: ${response.status} ${response.statusText}`;
+                const errorData = await response.json();
+                const errorMessage = errorData.message || 'Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin đăng nhập của bạn.';
+                setError(errorMessage);
+                
                 throw new Error(errorMessage);
             }
 
             // If the response is OK, handle the successful login
             const data = await response.json();
-            console.log('Login successful:', data);
-            alert('Đăng nhập thành công!');
-            //save the token and redirect the user
+            toast.success('Đăng nhập thành công!');
+
             localStorage.setItem('token', data.access_token);
             const decoded = jwtDecode(data.access_token);
-            // console.log('Decoded token:', token);
             
             // Redirect based on user role
+            if (decoded.dept === 'KH&QLRR') {
+                navigate('/dashboard');
+            }
+            if (decoded.role === 'employee') {
+                navigate('/my-cases');
+            }
             if (decoded.role === 'administrator') {
                 navigate('/admin');
-            }
-            else if (decoded.role === 'employee') {
-                navigate('/my-cases');
-            } else {
-                navigate('/dashboard');
             }
 
         } catch (err) {
@@ -71,7 +73,7 @@ function Login() {
         <div className={styles.loginPageWrapper}>
             <div className={styles.loginContainer}>
                 <img src={logo} alt="Logo Ngân hàng Agribank" className={styles.logo} />
-                <h1>HỆ THỐNG QUẢN LÝ XỬ LÝ NỢ</h1>
+                <h1>HỆ THỐNG THEO DÕI XỬ LÝ NỢ</h1>
                 <form onSubmit={handleSubmit} noValidate>
                     <div className={styles.formGroup}>
                         <label htmlFor="username">Tên đăng nhập</label>

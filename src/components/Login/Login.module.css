@@ -1,4 +1,4 @@
-/* --- FIX: Thêm wrapper style để căn giữa trang --- */
+/* --- Wrapper style để căn giữa trang --- */
 .loginPageWrapper {
     display: flex;
     justify-content: center;
@@ -7,15 +7,15 @@
     min-height: 100vh;
     padding: 1rem;
     background-image: url("../../assets/bg.svg");
+    background-repeat: no-repeat;
     background-size: cover;
-    /* background-position: center; */
+    background-position: center;
 }
 
 :root {
     --primary-color: rgb(174, 28, 63);
     --primary-color-darker: rgb(154, 21, 52);
     --dark-color: #212529;
-    --light-color: #f4f7fa;
     --border-color: #ced4da;
     --border-color-focus: #8ab4f8;
     --error-bg-color: #f8d7da;
@@ -146,4 +146,25 @@
     border-radius: 6px;
     margin-top: 1.5rem;
     text-align: left;
+}
+
+/* --- PHẦN CSS MỚI CHO RESPONSIVE --- */
+@media (max-width: 480px) {
+    .loginContainer {
+        padding: 24px; /* Giảm padding trên màn hình nhỏ */
+    }
+
+    .loginContainer h1 {
+        font-size: 20px; /* Giảm kích thước tiêu đề */
+    }
+
+    .formControl {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .loginButton {
+        padding: 10px;
+        font-size: 14px;
+    }
 }

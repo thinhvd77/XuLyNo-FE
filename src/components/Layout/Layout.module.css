@@ -1,9 +1,9 @@
 :root {
-    --primary-color: #DA251D;
+    --primary-color: #da251d;
     --sidebar-bg: #212529;
-    --body-bg: #f4f7fa;
     --card-bg: #ffffff;
     --border-color: #dee2e6;
+    --text-color: #333;
     --sidebar-width: 240px;
 }
 
@@ -11,31 +11,19 @@
     display: flex;
 }
 
-.mainWrapper {
-    flex-grow: 1;
-    margin-left: var(--sidebar-width);
-    transition: margin-left 0.3s ease-in-out;
-}
-
-.mainContent {
-    padding: 24px;
-}
-
 .appSidebar {
     width: var(--sidebar-width);
-    background-color: var(--sidebar-bg);
+    background-color: rgb(174, 28, 63);
     color: white;
     height: 100vh;
+    flex-shrink: 0;
+    padding-top: 20px;
     position: fixed;
     top: 0;
     left: 0;
-    flex-shrink: 0;
-    padding-top: 20px;
-    z-index: 1000;
-    transition: transform 0.3s ease-in-out;
 }
 
-.sidebarHeader {
+.logo {
     padding: 0 24px 24px 24px;
     font-weight: bold;
     font-size: 18px;
@@ -52,22 +40,20 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 24px;
+    padding: 12px 24px;
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
-    transition: background-color 0.2s, color 0.2s;
-    border-left: 3px solid transparent;
-}
-
-.navList a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
+    transition: background-color 0.2s;
 }
 
 .navList a.active {
-    background-color: var(--primary-color);
+    background-color: rgb(216, 64, 100);
     color: white;
-    font-weight: 500;
+}
+
+.navList a:hover {
+    background-color: rgb(219, 84, 115);
+    color: white;
 }
 
 .icon {
@@ -75,9 +61,18 @@
     height: 20px;
 }
 
+.mainWrapper {
+    flex-grow: 1;
+    margin-left: var(--sidebar-width);
+}
+
+.mainContent {
+    padding: 24px;
+}
+
 .appHeader {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     padding: 0 24px;
     height: 64px;
@@ -85,43 +80,33 @@
     border-bottom: 1px solid var(--border-color);
 }
 
-.userProfile {
-    background: none;
-    border: none;
+.userMenu {
+    position: relative;
     cursor: pointer;
     padding: 8px;
     border-radius: 6px;
-    transition: background-color 0.2s;
-    font-size: 14px;
 }
 
-.userProfile:hover {
-    background-color: var(--body-bg);
+.dropdownContent {
+    position: absolute;
+    right: 0;
+    top: 120%;
+    background-color: var(--card-bg);
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
-.sidebarToggleBtn {
-    display: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-}
-.sidebarToggleBtn svg {
-    width: 24px;
-    height: 24px;
+.dropdownContent a {
+    color: var(--text-color);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
 }
 
-@media (max-width: 992px) {
-    .appSidebar {
-        transform: translateX(-100%);
-    }
-    .appSidebar.sidebarOpen {
-        transform: translateX(0);
-    }
-    .mainWrapper {
-        margin-left: 0;
-    }
-    .sidebarToggleBtn {
-        display: block;
-    }
+.dropdownContent a:hover {
+    background-color: #f1f1f1;
 }

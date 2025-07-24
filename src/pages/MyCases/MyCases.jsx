@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import styles from './MyCases.module.css';
 import Pagination from '../../components/Pagination/Pagination';
 import { jwtDecode } from "jwt-decode";
@@ -133,7 +133,7 @@ function MyCases() {
                                     <td>{parseFloat(c.outstanding_debt).toLocaleString('vi-VN')}</td>
                                     <td><StatusBadge status={c.state} /></td>
                                     <td>{new Date(c.last_modified_date).toLocaleDateString('vi-VN')}</td>
-                                    <td className={styles.actionCell}><a href="#">Cập nhật</a></td>
+                                    <td className={styles.actionCell}><Link to={`/case/${c.case_id}`}>Cập nhật</Link></td>
                                 </tr>
                             ))
                         ) : (

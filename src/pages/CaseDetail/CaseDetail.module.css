@@ -1,0 +1,264 @@
+:root {
+    --primary-color: #da251d;
+    --border-color: #dee2e6;
+    --card-bg: #ffffff;
+    --text-light: #6c757d;
+    --body-bg: #f4f7fa;
+}
+
+.pageHeader {
+    margin-bottom: 24px;
+}
+.breadcrumb ol {
+    display: flex;
+    list-style: none;
+    margin: 0 0 8px 0;
+    padding: 0;
+    color: var(--text-light);
+}
+.breadcrumb li::after {
+    content: "/";
+    margin: 0 8px;
+}
+.breadcrumb li:last-child::after {
+    content: "";
+}
+.breadcrumb a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+.pageHeader h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.detailsGrid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.infoColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.card h3 {
+    font-size: 16px;
+    margin: -24px -24px 16px -24px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 16px 8px;
+}
+.infoGrid dt {
+    font-weight: 600;
+    color: var(--text-light);
+}
+.infoGrid dd {
+    margin: 0;
+    font-weight: 500;
+}
+.infoGrid dd strong {
+    color: var(--primary-color);
+}
+
+.formGroup {
+    margin-bottom: 16px;
+}
+.formGroup label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+.formControl {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+}
+.button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: var(--primary-color);
+    transition: background-color 0.2s;
+}
+.button:hover {
+    background-color: #c32018;
+}
+
+.tabsColumn {
+    padding: 0;
+}
+.tabNav {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 24px;
+}
+.tabButton {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-light);
+    border: none;
+    background: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+}
+.tabButton.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+.tabContent {
+    padding: 24px;
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 24px 0;
+}
+.timeline {
+    max-height: 21rem;
+    overflow-y: auto;
+    padding-right: 10px;
+    padding-left: 25px;
+    position: relative;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background-color: var(--border-color);
+}
+
+.timelineItem {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    position: relative;
+}
+.timelineIcon {
+    position: absolute;
+    left: -26px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: white;
+    color: rgb(174, 28, 63);
+}
+.timelineItem .meta {
+    font-weight: bold;
+}
+.timelineItem .meta span {
+    color: var(--text-light);
+    font-weight: normal;
+    font-size: 16px;
+}
+.timelineItem p {
+    margin: 4px 0 0 0;
+}
+
+/* --- CSS MỚI CHO UPLOADER HỢP NHẤT --- */
+.uploaderContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.dropzone {
+    border: 2px dashed var(--border-color);
+    border-radius: 6px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+.dropzone:hover,
+.dropzone.dragActive {
+    border-color: var(--primary-color);
+    background-color: #f8f9fa;
+}
+
+.fileList {
+    margin-top: 16px;
+}
+.fileList h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+.fileList ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.fileList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: #f8f9fa;
+    margin-bottom: 4px;
+}
+.fileInfo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.fileTypeBadge {
+    background-color: #6c757d;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+}
+.fileList button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    color: #dc3545;
+}
+
+@media (max-width: 992px) {
+    .detailsGrid {
+        grid-template-columns: 1fr;
+    }
+}

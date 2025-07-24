@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import styles from './UserLayout.module.css';
 import { jwtDecode } from "jwt-decode";
+import styles from './UserLayout.module.css';
 
 const SvgIcon = ({ path }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={styles.icon} viewBox="0 0 24 24" fill="currentColor">
@@ -25,8 +25,7 @@ function UserLayout({ children }) {
         
         if (decodedUser) {
             setUser({
-                name: decodedUser.fullname || 'Cán bộ',
-                role: decodedUser.role === 'employee' ? 'Cán bộ Tín dụng' : 'Người dùng'
+                name: decodedUser.fullname || 'Cán bộ'
             });
         }
     }, []);
@@ -56,7 +55,7 @@ function UserLayout({ children }) {
                 <header className={styles.appHeader}>
                     <div className={styles.userMenu} onClick={() => setMenuOpen(!isMenuOpen)}>
                         <span onClick={() => setMenuOpen(!isMenuOpen)}>
-                            Chào, <strong>{user ? user.name : '...'}</strong> ({user ? user.role : '...'}) ▾
+                            <strong>{user ? user.name : '...'}</strong> ▾
                         </span>
                         {isMenuOpen && (
                             <div className={styles.dropdownContent}>

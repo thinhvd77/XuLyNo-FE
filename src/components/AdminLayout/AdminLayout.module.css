@@ -1,84 +1,40 @@
 :root {
     --primary-color: #da251d;
-    --sidebar-bg: #962f2f;
     --card-bg: #ffffff;
     --border-color: #dee2e6;
     --text-color: #333;
-    --sidebar-width: 240px;
+    --header-height: 64px; /* Định nghĩa chiều cao header */
 }
 
+/* Container chính chiếm toàn bộ màn hình và không cuộn */
 .appContainer {
     display: flex;
-}
-
-.appSidebar {
-    width: var(--sidebar-width);
-    background-color: rgb(174, 28, 63);
-    color: white;
+    flex-direction: column;
     height: 100vh;
-    flex-shrink: 0;
-    padding-top: 20px;
-    position: fixed;
-    top: 0;
-    left: 0;
-}
-
-.logo {
-    margin-right: auto;
-}
-
-.logo img {
-    width: 40%;
-    height: auto;
-}
-
-.navList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 16px;
-    font-weight: 500;
-}
-
-.navList a {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 24px;
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    transition: background-color 0.2s;
-}
-
-.navList a.active,
-.navList a:hover {
-    /* background-color: var(--primary-color); */
-    color: white;
-}
-
-.icon {
-    width: 20px;
-    height: 20px;
-}
-
-.mainWrapper {
-    flex-grow: 1;
-    /* margin-left: var(--sidebar-width); */
-}
-
-.mainContent {
-    padding: 24px;
+    overflow: hidden; /* Quan trọng: Ngăn không cho toàn bộ trang cuộn */
+    background-color: #f4f7fa;
 }
 
 .appHeader {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     padding: 0 24px;
-    height: 64px;
+    height: var(--header-height);
     background-color: rgb(174, 28, 63);
     color: white;
-    /* border-bottom: 1px solid var(--border-color); */
+    flex-shrink: 0; /* Header không co lại */
+}
+
+.logoImage img {
+    height: 40px;
+    width: auto;
+}
+
+.mainContent {
+    flex-grow: 1; /* Cho phép content chiếm hết không gian còn lại */
+    padding: 24px;
+    overflow-y: auto; /* Cho phép content tự cuộn nếu cần (dù layout con sẽ quản lý việc này) */
 }
 
 .userMenu {
@@ -86,6 +42,9 @@
     cursor: pointer;
     padding: 8px;
     border-radius: 6px;
+}
+.userMenu:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .dropdownContent {

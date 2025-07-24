@@ -18,6 +18,37 @@
     border: 1px solid #dee2e6;
 }
 
+/* --- CSS MỚI CHO GIAO DIỆN TAB --- */
+.tabNav {
+    display: flex;
+    border-bottom: 1px solid #dee2e6;
+    margin: -24px -24px 24px -24px; /* Mở rộng ra sát viền card */
+    padding: 0 24px;
+}
+.tabButton {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #6c757d;
+    border: none;
+    background: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px; /* Để border đè lên border của nav */
+    transition: color 0.2s, border-color 0.2s;
+}
+.tabButton:hover {
+    color: #333;
+}
+.tabButton.active {
+    color: #da251d;
+    border-bottom-color: #da251d;
+}
+.tabContent {
+    /* Nội dung của tab sẽ có padding riêng */
+}
+/* --- HẾT PHẦN CSS MỚI --- */
+
 .dropzone {
     border: 2px dashed #dee2e6;
     border-radius: 8px;
@@ -26,14 +57,15 @@
     cursor: pointer;
     transition: border-color 0.2s, background-color 0.2s;
 }
-.dropzone:hover, .dropzone.dragActive {
-    border-color: #DA251D;
+.dropzone:hover,
+.dropzone.dragActive {
+    border-color: #da251d;
     background-color: #fbe9e7;
 }
 .uploadIcon {
     width: 48px;
     height: 48px;
-    color: #DA251D;
+    color: #da251d;
     margin: 0 auto 16px auto;
 }
 .fileTypeHint {
@@ -41,6 +73,7 @@
     font-size: 12px;
 }
 
+/* ... (Các style khác cho file list và result summary giữ nguyên như cũ) ... */
 .fileList {
     margin-top: 24px;
 }
@@ -53,7 +86,6 @@
     padding: 0;
     margin: 0;
 }
-
 .fileListItem {
     border: 1px solid #dee2e6;
     border-radius: 6px;
@@ -61,31 +93,27 @@
     padding: 12px;
     transition: border-color 0.3s;
 }
-
-/* Style cho các trạng thái của item */
 .fileListItem.success {
-    border-color: #00542B;
+    border-color: #00542b;
     background-color: #e8f5e9;
 }
 .fileListItem.error {
-    border-color: #DA251D;
+    border-color: #da251d;
     background-color: #fbe9e7;
 }
 .fileListItem.uploading {
     background-color: #f8f9fa;
 }
-
 .fileDetails {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
 .fileInfo {
     display: flex;
     align-items: center;
     gap: 10px;
-    overflow: hidden; /* Ngăn tên file dài làm vỡ layout */
+    overflow: hidden;
 }
 .fileIcon {
     width: 20px;
@@ -105,7 +133,6 @@
     margin-left: 8px;
     flex-shrink: 0;
 }
-
 .fileStatus {
     display: flex;
     align-items: center;
@@ -115,11 +142,19 @@
 .statusMessage {
     font-weight: 500;
 }
-.success .statusMessage { color: #00542B; }
-.error .statusMessage { color: #DA251D; }
-.waiting .statusMessage { color: #6c757d; font-style: italic; }
-.uploading .statusMessage { color: #0d6efd; }
-
+.success .statusMessage {
+    color: #00542b;
+}
+.error .statusMessage {
+    color: #da251d;
+}
+.waiting .statusMessage {
+    color: #6c757d;
+    font-style: italic;
+}
+.uploading .statusMessage {
+    color: #0d6efd;
+}
 .removeBtn {
     background: none;
     border: none;
@@ -130,18 +165,16 @@
     padding: 0 4px;
 }
 .removeBtn:hover {
-    color: #DA251D;
+    color: #da251d;
 }
 .removeBtn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
-
-/* CSS CHO BẢNG KẾT QUẢ */
 .resultSummary {
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid #d0e4d2; /* Light green border */
+    border-top: 1px solid #d0e4d2;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 8px 16px;
@@ -157,9 +190,12 @@
 .resultItem strong {
     font-weight: 600;
 }
-.created { color: #198754; }
-.updated { color: #0d6efd; }
-
+.created {
+    color: #198754;
+}
+.updated {
+    color: #0d6efd;
+}
 .actions {
     margin-top: 24px;
     text-align: right;
@@ -172,7 +208,7 @@
     font-weight: bold;
     font-size: 16px;
     cursor: pointer;
-    background-color: #DA251D;
+    background-color: #da251d;
     transition: background-color 0.2s;
 }
 .actions button:hover:not(:disabled) {

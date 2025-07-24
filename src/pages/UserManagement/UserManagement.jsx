@@ -105,6 +105,89 @@ const AddUserModal = ({ isOpen, onClose, onSave }) => {
     );
 };
 
+// --- COMPONENT MỚI: MODAL SỬA NGƯỜI DÙNG ---
+const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
+    const [fullname, setFullname] = useState('');
+    const [role, setRole] = useState('employee');
+    const [dept, setDept] = useState('');
+    const [branch_code, setBranchCode] = useState('');
+
+    useEffect(() => {
+        if (user) {
+            setFullname(user.fullname);
+            setRole(user.role);
+            setDept(user.dept);
+            setBranchCode(user.branch_code);
+        }
+    }, [user]);
+
+    if (!isOpen) {
+        return null;
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave(user.employee_code, { fullname, role, dept, branch_code });
+    };
+
+    return (
+        <div className={styles.modalBackdrop}>
+            <div className={styles.modalContent}>
+                <div className={styles.modalHeader}>
+                    <h2>Chỉnh sửa Người dùng</h2>
+                    <button onClick={onClose} className={styles.closeButton}>&times;</button>
+                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className={styles.modalBody}>
+                        <div className={styles.formGroup}>
+                            <label>Mã Nhân viên</label>
+                            <input type="text" value={user.employee_code} disabled />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Tên đăng nhập</label>
+                            <input type="text" value={user.username} disabled />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="edit-fullname">Họ và Tên</label>
+                            <input id="edit-fullname" type="text" value={fullname} onChange={e => setFullname(e.target.value)} required />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="edit-dept">Phòng ban</label>
+                            <select id="edit-dept" value={dept} onChange={e => setDept(e.target.value)}>
+                                <option value="KHCN">Khách hàng cá nhân</option>
+                                <option value="KHDN">Khách hàng doanh nghiệp</option>
+                                <option value="KH&QLRR">Kế hoạch & quản lý rủi ro</option>
+                                <option value="BGD">Ban Giám đốc</option>
+                                <option value="IT">IT</option>
+                            </select>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="edit-role">Chức vụ</label>
+                            <select id="edit-role" value={role} onChange={e => setRole(e.target.value)}>
+                                <option value="employee">Cán bộ tín dụng</option>
+                                <option value="manager">Trưởng phòng</option>
+                                <option value="administrator">Administrator</option>
+                            </select>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="edit-branch">Chi nhánh</label>
+                            <select id="edit-branch" value={branch_code} onChange={e => setBranchCode(e.target.value)}>
+                                <option value="6421">Hội sở</option>
+                                <option value="6221">Chi nhánh Nam Hoa</option>
+                                <option value="1605">Chi nhánh 6</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className={styles.modalFooter}>
+                        <button type="button" className={styles.cancelButton} onClick={onClose}>Hủy</button>
+                        <button type="submit" className={styles.saveButton}>Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 function UserManagement() {
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -112,7 +195,12 @@ function UserManagement() {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
     const navigate = useNavigate();
+
+       // --- THÊM MỚI: State cho modal sửa ---
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
 
     // Giả lập việc fetch dữ liệu từ API
     useEffect(() => {
@@ -159,9 +247,9 @@ function UserManagement() {
         );
     }, [users, searchTerm]);
 
-    const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
-    const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
-    const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
 
     const handleAddUser = async (newUserData) => {
@@ -207,10 +295,31 @@ function UserManagement() {
         }
     };
 
+    // --- THÊM MỚI: Logic mở modal sửa ---
+    const openEditModal = (user) => {
+        setCurrentUser(user);
+        setIsEditModalOpen(true);
+    };
+
+    const handleEditUser = (userId, updatedData) => {
+        // Mô phỏng gọi API và cập nhật lại state
+        toast.promise(
+            new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
+                setUsers(users.map(u => u.id === userId ? { ...u, ...updatedData } : u));
+                setIsEditModalOpen(false);
+            }),
+            {
+                loading: 'Đang cập nhật...',
+                success: 'Cập nhật người dùng thành công!',
+                error: 'Cập nhật thất bại!',
+            }
+        );
+    };
+
     const handleDisableUser = (userId) => {
         // Mô phỏng gọi API để thay đổi trạng thái
         setUsers(users.map(user =>
-            user.id === userId ? { ...user, status: user.status === 'active' ? 'disabled' : 'active' } : user
+            user.employee_code === userId ? { ...user, status: user.status === 'active' ? 'disabled' : 'active' } : user
         ));
     };
 
@@ -256,11 +365,17 @@ function UserManagement() {
     }
 
     return (
-        <>
+        <div className={styles.pageContainer}>
             <AddUserModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 onSave={handleAddUser}
+            />
+            <EditUserModal 
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSave={handleEditUser}
+                user={currentUser}
             />
 
             <div className={styles.pageHeader}>
@@ -279,77 +394,86 @@ function UserManagement() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
-
-            <div className={styles.tableContainer}>
-                <table className={styles.dataTable}>
-                    <thead>
-                        <tr>
-                            <th>Mã Nhân viên</th>
-                            <th>Họ và Tên</th>
-                            <th>Tên đăng nhập</th>
-                            <th>Phòng ban</th>
-                            <th>Chức vụ</th>
-                            <th>Chi nhánh</th>
-                            <th>Trạng thái</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentUsers.map(user => (
-                            <tr key={user.employee_code}>
-                                <td>{user.employee_code}</td>
-                                <td>{user.fullname}</td>
-                                <td>{user.username}</td>
-                                <td>{
-                                    user.dept === 'KHCN' ? "Khách hàng cá nhân"
-                                        : user.dept === "KHDN" ? "Khách hàng doanh nghiệp"
-                                            : user.dept === "KH&QLRR" ? "Kế hoạch & quản lý rủi ro"
-                                                : user.dept === "BGD" ? "Ban Giám đốc"
-                                                    : user.dept === "IT" ? "IT" : "Chưa xác định"
-
-                                }</td>
-                                <td>{
-                                    user.role === 'employee' ? "Cán bộ tín dụng"
-                                        : user.role === "manager" ? "Trưởng phòng"
-                                            : user.role === "deputy_manager" ? "Phó phòng"
-                                                : user.role === "director" ? "Giám đốc"
-                                                    : user.role === "deputy_director" ? "Phó giám đốc"
-                                                        : user.role === "administrator" ? "Administrator" : "Chưa xác định"
-                                }</td>
-                                <td>{
-                                    user.branch_code === '6421' ? "Hội sở"
-                                        : user.branch_code === "6221" ? "Chi nhánh Nam Hoa"
-                                            : user.branch_code === "1605" ? "Chi nhánh 6"
-                                                : "Chưa xác định"
-                                }</td>
-                                <td>
-                                    <span className={`${styles.statusBadge} ${styles[user.status]}`}>
-                                        {user.status === 'active' ? 'Hoạt động' : 'Vô hiệu hóa'}
-                                    </span>
-                                </td>
-                                <td className={styles.actionCell}>
-                                    <button className={styles.actionButton}>Sửa</button>
-                                    <button className={`${styles.actionButton} ${styles.disable}`} onClick={() => handleDisableUser(user.employee_code)}>
-                                        {user.status === 'active' ? 'Vô hiệu hóa' : 'Kích hoạt'}
-                                    </button>
-                                    <button className={`${styles.actionButton} ${styles.delete}`} onClick={() => handleDeleteUser(user.employee_code)}>Xóa</button>
-                                </td>
+            <div className={styles.tableWrapper}>
+                <div className={styles.tableContainer}>
+                    <table className={styles.dataTable}>
+                        <thead>
+                            <tr>
+                                <th>Mã Nhân viên</th>
+                                <th>Họ và Tên</th>
+                                <th>Tên đăng nhập</th>
+                                <th>Phòng ban</th>
+                                <th>Chức vụ</th>
+                                <th>Chi nhánh</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <div className={styles.paginationContainer}>
-                    <div className={styles.pageInfo}>
-                        Hiển thị {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredUsers.length)} trên tổng số {filteredUsers.length} người dùng
-                    </div>
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={setCurrentPage}
-                    />
+                        </thead>
+                        <tbody>
+                            {currentUsers.map(user => (
+                                <tr key={user.employee_code}>
+                                    <td>{user.employee_code}</td>
+                                    <td>{user.fullname}</td>
+                                    <td>{user.username}</td>
+                                    <td>{
+                                        user.dept === 'KHCN' ? "Khách hàng cá nhân"
+                                            : user.dept === "KHDN" ? "Khách hàng doanh nghiệp"
+                                                : user.dept === "KH&QLRR" ? "Kế hoạch & quản lý rủi ro"
+                                                    : user.dept === "BGD" ? "Ban Giám đốc"
+                                                        : user.dept === "IT" ? "IT" : "Chưa xác định"
+
+                                    }</td>
+                                    <td>{
+                                        user.role === 'employee' ? "Cán bộ tín dụng"
+                                            : user.role === "manager" ? "Trưởng phòng"
+                                                : user.role === "deputy_manager" ? "Phó phòng"
+                                                    : user.role === "director" ? "Giám đốc"
+                                                        : user.role === "deputy_director" ? "Phó giám đốc"
+                                                            : user.role === "administrator" ? "Administrator" : "Chưa xác định"
+                                    }</td>
+                                    <td>{
+                                        user.branch_code === '6421' ? "Hội sở"
+                                            : user.branch_code === "6221" ? "Chi nhánh Nam Hoa"
+                                                : user.branch_code === "1605" ? "Chi nhánh 6"
+                                                    : "Chưa xác định"
+                                    }</td>
+                                    <td>
+                                        <span className={`${styles.statusBadge} ${styles[user.status]}`}>
+                                            {user.status === 'active' ? 'Hoạt động' : 'Vô hiệu hóa'}
+                                        </span>
+                                    </td>
+                                    <td className={styles.actionCell}>
+                                        <button className={styles.actionButton} onClick={() => openEditModal(user)}>Sửa</button>
+                                        <button className={`${styles.actionButton} ${styles.disable}`} onClick={() => handleDisableUser(user.employee_code)}>
+                                            {user.status === 'active' ? 'Vô hiệu hóa' : 'Kích hoạt'}
+                                        </button>
+                                        <button className={`${styles.actionButton} ${styles.delete}`} onClick={() => handleDeleteUser(user.employee_code)}>Xóa</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </>
+            <div className={styles.paginationContainer}>
+                <div className={styles.rowsPerPageSelector}>
+                    <span>Hiển thị:</span>
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        <option value={5}>5 dòng</option>
+                        <option value={10}>10 dòng</option>
+                        <option value={15}>15 dòng</option>
+                    </select>
+                </div>
+                <div className={styles.pageInfo}>
+                    Hiển thị {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredUsers.length)} trên tổng số {filteredUsers.length} người dùng
+                </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
+            </div>
+        </div>
     );
 }
 

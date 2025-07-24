@@ -1,8 +1,16 @@
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    /* Chiều cao của container bằng 100% chiều cao của parent (.mainContent) */
+    height: 100%; 
+}
+
 .pageHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
+    flex-shrink: 0;
 }
 .pageHeader h1 {
     font-size: 24px;
@@ -17,28 +25,42 @@
     color: white;
     font-weight: bold;
     cursor: pointer;
-    background-color: #00542B; /* Agribank Green */
+    background-color: #00542B;
     transition: background-color 0.2s;
 }
 .addButton:hover {
     background-color: #003e1f;
 }
 
+.tableWrapper {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+    display: flex; /* Thêm flex để container con có thể co giãn */
+}
+
 .tableContainer {
+    width: 100%;
+    overflow-y: auto; /* Chỉ vùng này có thanh cuộn dọc */
     background-color: #ffffff;
     border: 1px solid #dee2e6;
-    border-radius: 8px;
-    overflow: hidden;
+    border-radius: 8px 8px 0 0; /* Bo góc trên */
 }
+
 .dataTable {
     width: 100%;
     border-collapse: collapse;
 }
-.dataTable th,
-.dataTable td {
+.dataTable thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+.dataTable th, .dataTable td {
     padding: 16px;
     text-align: left;
     border-bottom: 1px solid #dee2e6;
+    white-space: nowrap; /* Ngăn text xuống dòng */
 }
 .dataTable thead th {
     background-color: #f8f9fa;
@@ -47,9 +69,6 @@
 }
 .dataTable tbody tr:hover {
     background-color: #fbe9e7;
-}
-.dataTable tbody tr:last-child td {
-    border-bottom: none;
 }
 
 .statusBadge {
@@ -216,22 +235,38 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 8px 8px; /* Bo góc dưới */
+    flex-shrink: 0;
 }
+
 .pageInfo {
-    color: var(--text-light);
+    color: #6c757d;
+}
+
+.rowsPerPageSelector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+}
+.rowsPerPageSelector select {
+    padding: 6px 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
 }
 
 .filterBar {
-    display: flex;
-    gap: 16px;
-    align-items: center;
     margin-bottom: 24px;
-    flex-wrap: wrap;
+    flex-shrink: 0;
 }
 .searchInput {
-    flex-grow: 1;
+    width: 100%;
+    max-width: 400px;
     padding: 10px;
-    border: 1px solid var(--border-color);
+    border: 1px solid #dee2e6;
     border-radius: 6px;
     font-size: 14px;
 }
