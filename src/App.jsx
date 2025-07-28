@@ -10,7 +10,11 @@ import MyCases from "./pages/MyCases/MyCases"; // Import trang mới
 import ImportPage from "./pages/Import/Import";
 import UserManagement from "./pages/UserManagement/UserManagement"; // Import trang quản lý người dù  ng
 import CaseDetail from "./pages/CaseDetail/CaseDetail";
+<<<<<<< Updated upstream
 import AuthGuard from "./components/AuthGuard/AuthGuard";
+=======
+import Manager from "./pages/Manager/Manager";
+>>>>>>> Stashed changes
 
 function App() {
     return (
@@ -82,6 +86,14 @@ function App() {
                                 <CaseDetail />
                             </UserLayout>
                         </AuthGuard>
+                    }
+                />
+                <Route
+                    path="/manager"
+                    element={
+                        <UserLayout>
+                            <Manager />
+                        </UserLayout>
                     }
                 />
             </Routes>

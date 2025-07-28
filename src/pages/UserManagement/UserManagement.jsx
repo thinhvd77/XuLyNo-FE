@@ -431,19 +431,51 @@ function UserManagement() {
         setIsEditModalOpen(true);
     };
 
-    const handleEditUser = (userId, updatedData) => {
+    const handleEditUser = async (userId, updatedData) => {
         // Mô phỏng gọi API và cập nhật lại state
-        toast.promise(
-            new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
-                setUsers(users.map(u => u.id === userId ? { ...u, ...updatedData } : u));
-                setIsEditModalOpen(false);
-            }),
-            {
-                loading: 'Đang cập nhật...',
-                success: 'Cập nhật người dùng thành công!',
-                error: 'Cập nhật thất bại!',
+        try {
+            const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(updatedData)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                // console.error();
+                throw new Error(result.message || 'Không thể cập nhật người dùng.');
             }
-        );
+
+            const updatedResponse = await fetch('http://localhost:3000/api/users', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            const Data = await updatedResponse.json();
+            setUsers(Data.users);
+
+            setIsEditModalOpen(false); // Đóng modal sau khi lưu thành công
+            toast.success('Cập nhật người dùng thành công!');
+
+        } catch (error) {
+            toast.error(`Đã xảy ra lỗi: ${error.message}`);
+        }
+
+        // toast.promise(
+        //     new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
+        //         setUsers(users.map(u => u.id === userId ? { ...u, ...updatedData } : u));
+        //         setIsEditModalOpen(false);
+        //     }),
+        //     {
+        //         loading: 'Đang cập nhật...',
+        //         success: 'Cập nhật người dùng thành công!',
+        //         error: 'Cập nhật thất bại!',
+        //     }
+        // );
     };
 
     const handleDisableUser = (userId) => {
