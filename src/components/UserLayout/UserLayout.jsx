@@ -17,7 +17,6 @@ function UserLayout({ children }) {
     const [isMenuOpen, setMenuOpen] = useState(false);
 
     const [user, setUser] = useState(null);
-<<<<<<< Updated upstream
     const navigate = useNavigate();
     const menuRef = useRef(null);
 
@@ -38,9 +37,7 @@ function UserLayout({ children }) {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [isMenuOpen]);
-=======
-    const [isHidden, setIsHidden] = useState(false);
->>>>>>> Stashed changes
+    // const [isHidden, setIsHidden] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -60,7 +57,7 @@ function UserLayout({ children }) {
                         : decodedUser.role === 'manager' ? 'Trưởng phòng'
                             : 'Người dùng'
             });
-            if(decodedUser.role === 'manager'){setIsHidden(true)}
+            if(decodedUser.role === 'manager'){setSidebarOpen(true)}
         }
     }, []);
 
@@ -73,7 +70,6 @@ function UserLayout({ children }) {
 
     return (
         <div className={styles.appContainer}>
-<<<<<<< Updated upstream
             <aside className={`${styles.appSidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
                 <div className={styles.logo}>
                     <img src={btpLogo} alt="BTP Logo" />
@@ -85,27 +81,13 @@ function UserLayout({ children }) {
                                 <SvgIcon path="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z" />
                                 <span>Hồ sơ của tôi</span>
                             </NavLink>
-                        </li>
-                    </ul>
-                </nav>
-=======
-            <aside className={styles.appSidebar}>
-                <div className={styles.logo}>AGRIBANK - XỬ LÝ NỢ</div>
-                <ul className={styles.navList}>
-                    <li>
-                        <NavLink to="/my-cases" className={({ isActive }) => isActive ? styles.active : ''}>
-                            <SvgIcon path="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z" />
-                            <span>Hồ sơ của tôi</span>
-                        </NavLink>
-                    </li>
-                    <li style={{ display: isHidden ? 'block' : 'none' }}>
-                        <NavLink to="/manager" className={({ isActive }) => isActive ? styles.active : ''}>
+                            <NavLink to="/manager" className={({ isActive }) => isActive ? styles.active : ''}>
                             <SvgIcon path="M3 14h4v-4H3zm0 5h4v-4H3zM3 9h4V5H3zm5 5h13v-4H8zm0 5h13v-4H8zM8 5v4h13V5z" />
                             <span>Danh sách nhân viên</span>
                         </NavLink>
-                    </li>
-                </ul>
->>>>>>> Stashed changes
+                        </li>
+                    </ul>
+                </nav>
             </aside>
 
             <div className={styles.mainWrapper}>

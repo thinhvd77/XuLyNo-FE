@@ -434,7 +434,7 @@ function UserManagement() {
     const handleEditUser = async (userId, updatedData) => {
         // Mô phỏng gọi API và cập nhật lại state
         try {
-            const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+            const response = await fetch(API_ENDPOINTS.USERS.UPDATE(userId), {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -450,7 +450,7 @@ function UserManagement() {
                 throw new Error(result.message || 'Không thể cập nhật người dùng.');
             }
 
-            const updatedResponse = await fetch('http://localhost:3000/api/users', {
+            const updatedResponse = await fetch(API_ENDPOINTS.USERS.LIST, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }

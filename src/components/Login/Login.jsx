@@ -52,13 +52,8 @@ function Login() {
             if (decoded.dept === 'KH&QLRR') {
                 navigate('/dashboard', { replace: true });
             }
-<<<<<<< Updated upstream
-            if (decoded.role === 'employee') {
-                navigate('/my-cases', { replace: true });
-=======
             if (decoded.role === 'employee' || decoded.role === 'manager') {
-                navigate('/my-cases');
->>>>>>> Stashed changes
+                navigate('/my-cases', { replace: true });
             }
             if (decoded.role === 'administrator') {
                 navigate('/admin', { replace: true });

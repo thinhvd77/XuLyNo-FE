@@ -1,7 +1,9 @@
 // API Configuration
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? 'http://your-production-server.com' 
-    : 'http://192.168.1.16:3000';
+    ? 'http://your-production-server.com'
+    : 'http://localhost:3000'; 
+    // : 'http://192.168.1.16:3000';
+    
 
 export const API_ENDPOINTS = {
     AUTH: {
@@ -11,6 +13,7 @@ export const API_ENDPOINTS = {
         LIST: `${API_BASE_URL}/api/users`,
         CREATE: `${API_BASE_URL}/api/users/create`,
         DELETE: (id) => `${API_BASE_URL}/api/users/${id}`,
+        UPDATE: (id) => `${API_BASE_URL}/api/users/${id}`,
     },
     CASES: {
         MY_CASES: `${API_BASE_URL}/api/cases/my-cases`,
