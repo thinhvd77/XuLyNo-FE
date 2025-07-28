@@ -3,14 +3,19 @@ import { useNavigate, Link } from 'react-router-dom';
 import styles from './MyCases.module.css';
 import Pagination from '../../components/Pagination/Pagination';
 import { jwtDecode } from "jwt-decode";
+import { API_ENDPOINTS } from '../../config/api';
 
 const ITEMS_PER_PAGE = 5;
 
 const StatusBadge = ({ status }) => {
     const statusClass = {
-        'Mới': styles.statusNew,
-        'Đang xử lý': styles.statusInprogress,
-        'Đã khởi kiện': styles.statusLawsuit
+        'Mới': styles.newStatus,
+        'Đang thu hồi nợ': styles.debtRecoveryInProgress,
+        'Đang khởi kiện': styles.lawsuitInProgress,
+        'Đang chờ xét xử': styles.awaitingTrial,
+        'Đang chờ thi hành án': styles.awaitingEnforcement,
+        'Đang thi hành án': styles.enforcementInProgress,
+        'Hoàn tất': styles.completed,
     };
     return <span className={`${styles.statusBadge} ${statusClass[status] || ''}`}>{status}</span>
 };
@@ -39,7 +44,7 @@ function MyCases() {
             try {
                 setIsLoading(true);
                 setError(null);
-                const response = await fetch('http://localhost:3000/api/cases/my-cases', {
+                const response = await fetch(API_ENDPOINTS.CASES.MY_CASES, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -89,25 +94,27 @@ function MyCases() {
     return (
         <>
             <div className={styles.pageHeader}>
-                <h1>Danh sách Hồ sơ được phân công</h1>
+                <h1>Hồ sơ của tôi</h1>
+                <p>Danh sách hồ sơ được phân công xử lý.</p>
             </div>
 
-            <div className={styles.filterBar}>
-                <input
-                    type="text"
-                    className={styles.searchInput}
-                    placeholder="Tìm theo Mã HS, Tên Khách hàng..."
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                />
-                <select 
-                    className={styles.filterSelect}
-                    value={statusFilter}
-                    onChange={e => setStatusFilter(e.target.value)}
-                >
-                    <option value="">Tất cả Trạng thái</option>
-                    <option value="Mới">Mới</option>
-                    <option value="Đang xử lý">Đang xử lý</option>
+            <div className={styles.card}>
+                <div className={styles.filterBar}>
+                    <input
+                        type="text"
+                        className={styles.searchInput}
+                        placeholder="Tìm theo Mã HS, Tên Khách hàng..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                    />
+                    <select 
+                        className={styles.filterSelect}
+                        value={statusFilter}
+                        onChange={e => setStatusFilter(e.target.value)}
+                    >
+                        <option value="">Tất cả Trạng thái</option>
+                        <option value="Mới">Mới</option>
+                        <option value="Đang xử lý">Đang xử lý</option>
                     <option value="Đã khởi kiện">Đã khởi kiện</option>
                 </select>
             </div>
@@ -153,9 +160,8 @@ function MyCases() {
                         onPageChange={setCurrentPage}
                     />
                 </div>
+                </div>
             </div>
         </>
     );
-}
-
-export default MyCases;
+}export default MyCases;

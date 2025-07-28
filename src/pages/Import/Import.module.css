@@ -1,3 +1,17 @@
+:root {
+    --primary-color: #DA251D;
+    --primary-color-light: #fbe9e7;
+    --secondary-color: #00542B;
+    --secondary-color-light: #e8f5e9;
+    --text-light: #6c757d;
+    --border-color: #dee2e6;
+    --card-bg: #ffffff;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+    --card-shadow-hover: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1);
+    --text-color: #333;
+}
+
+/* Page Header - đồng bộ với Dashboard */
 .pageHeader {
     margin-bottom: 24px;
 }
@@ -5,17 +19,20 @@
     font-size: 24px;
     font-weight: 600;
     margin: 0;
+    color: var(--text-color);
 }
 .pageHeader p {
-    color: #6c757d;
+    color: var(--text-light);
     margin: 4px 0 0 0;
 }
 
+/* Card wrapper */
 .card {
-    background-color: #ffffff;
+    background-color: var(--card-bg);
     padding: 24px;
     border-radius: 8px;
-    border: 1px solid #dee2e6;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* --- CSS MỚI CHO GIAO DIỆN TAB --- */
@@ -41,16 +58,13 @@
     color: #333;
 }
 .tabButton.active {
-    color: #da251d;
-    border-bottom-color: #da251d;
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
 }
-.tabContent {
-    /* Nội dung của tab sẽ có padding riêng */
-}
-/* --- HẾT PHẦN CSS MỚI --- */
-
+/* Không cần CSS riêng cho tabContent */
+/* Upload area styling */
 .dropzone {
-    border: 2px dashed #dee2e6;
+    border: 2px dashed var(--border-color);
     border-radius: 8px;
     padding: 40px;
     text-align: center;
@@ -59,27 +73,28 @@
 }
 .dropzone:hover,
 .dropzone.dragActive {
-    border-color: #da251d;
-    background-color: #fbe9e7;
+    border-color: var(--primary-color);
+    background-color: var(--primary-color-light);
 }
 .uploadIcon {
     width: 48px;
     height: 48px;
-    color: #da251d;
+    color: var(--primary-color);
     margin: 0 auto 16px auto;
 }
 .fileTypeHint {
-    color: #6c757d;
+    color: var(--text-light);
     font-size: 12px;
 }
 
-/* ... (Các style khác cho file list và result summary giữ nguyên như cũ) ... */
+/* File list styling */
 .fileList {
     margin-top: 24px;
 }
 .fileList h3 {
     margin-top: 0;
     font-size: 16px;
+    color: var(--text-color);
 }
 .fileList ul {
     list-style: none;
@@ -87,19 +102,19 @@
     margin: 0;
 }
 .fileListItem {
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     margin-bottom: 8px;
     padding: 12px;
     transition: border-color 0.3s;
 }
 .fileListItem.success {
-    border-color: #00542b;
-    background-color: #e8f5e9;
+    border-color: var(--secondary-color);
+    background-color: var(--secondary-color-light);
 }
 .fileListItem.error {
-    border-color: #da251d;
-    background-color: #fbe9e7;
+    border-color: var(--primary-color);
+    background-color: var(--primary-color-light);
 }
 .fileListItem.uploading {
     background-color: #f8f9fa;

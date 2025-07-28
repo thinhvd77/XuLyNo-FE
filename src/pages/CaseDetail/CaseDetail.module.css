@@ -1,14 +1,30 @@
 :root {
     --primary-color: #da251d;
+    --primary-color-light: #fbe9e7;
+    --secondary-color: #00542b;
+    --secondary-color-light: #e8f5e9;
+    --text-light: #6c757d;
     --border-color: #dee2e6;
     --card-bg: #ffffff;
-    --text-light: #6c757d;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    --card-shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.05),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+    --text-color: #333;
     --body-bg: #f4f7fa;
 }
 
+/* Page Header - đồng bộ với Dashboard */
 .pageHeader {
     margin-bottom: 24px;
 }
+.pageHeader h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-color);
+}
+
+/* Breadcrumb navigation */
 .breadcrumb ol {
     display: flex;
     list-style: none;
@@ -30,11 +46,8 @@
 .breadcrumb a:hover {
     text-decoration: underline;
 }
-.pageHeader h1 {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0;
-}
+
+/* Main layout grid */
 
 .detailsGrid {
     display: grid;
@@ -53,7 +66,8 @@
     background-color: var(--card-bg);
     padding: 24px;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .card h3 {
     font-size: 16px;
@@ -101,13 +115,14 @@
     border-radius: 6px;
     border: none;
     color: white;
-    font-weight: bold;
+    font-weight: 500;
     cursor: pointer;
     background-color: var(--primary-color);
-    transition: background-color 0.2s;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 .button:hover {
-    background-color: #c32018;
+    background-color: #c41e17;
+    transform: translateY(-1px);
 }
 
 .tabsColumn {
@@ -143,27 +158,19 @@
     margin: 24px 0;
 }
 .timeline {
-    max-height: 21rem;
+    max-height: 345px;
     overflow-y: auto;
     padding-right: 10px;
     padding-left: 25px;
     position: relative;
 }
-
 .timeline::before {
-    content: "";
-    position: absolute;
-    left: 8px;
-    top: 8px;
-    bottom: 8px;
-    width: 2px;
-    background-color: var(--border-color);
+    display: none;
 }
-
 .timelineItem {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
+    /* display: flex; */
+    /* gap: 12px; */
+    /* margin-bottom: 12px; */
     position: relative;
 }
 .timelineIcon {
@@ -179,6 +186,17 @@
     background-color: white;
     color: rgb(174, 28, 63);
 }
+
+.timelineItem:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: -17px; /* Căn giữa với icon */
+    top: 20px; /* Bắt đầu từ giữa icon */
+    bottom: -16px; /* Điều chỉnh để nối liền với item tiếp theo */
+    width: 0;
+    border-left: 2px dashed var(--border-color);
+}
+
 .timelineItem .meta {
     font-weight: bold;
 }
@@ -188,7 +206,7 @@
     font-size: 16px;
 }
 .timelineItem p {
-    margin: 4px 0 0 0;
+    margin: 0;
 }
 
 /* --- CSS MỚI CHO UPLOADER HỢP NHẤT --- */
@@ -212,8 +230,10 @@
     background-color: #f8f9fa;
 }
 
+/* Upload queue styles */
 .fileList {
     margin-top: 16px;
+    
 }
 .fileList h4 {
     margin-top: 0;
@@ -224,21 +244,79 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    max-height: 240px;
+    overflow-y: auto;
+    padding-right: 10px;
 }
-.fileList li {
+
+.fileQueueItem {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px;
     border-radius: 4px;
     font-size: 13px;
-    background-color: #f8f9fa;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
+    border: 1px solid #dee2e6;
 }
+
+.fileQueueItem.waiting {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.fileQueueItem.success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.fileQueueItem.error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
 .fileInfo {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.fileName {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fileSize {
+    color: #6c757d;
+    font-size: 11px;
+}
+
+.fileStatus {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.statusText {
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.fileQueueItem.waiting .statusText {
+    color: #6c757d;
+}
+
+.fileQueueItem.success .statusText {
+    color: #155724;
+}
+
+.fileQueueItem.error .statusText {
+    color: #721c24;
 }
 .fileTypeBadge {
     background-color: #6c757d;
@@ -247,8 +325,12 @@
     border-radius: 10px;
     font-size: 11px;
     font-weight: 500;
+    flex-shrink: 0;
 }
-.fileList button {
+.fileName {
+    font-weight: 500;
+}
+.fileList .removeDoc {
     background: none;
     border: none;
     font-size: 18px;
@@ -257,8 +339,306 @@
     color: #dc3545;
 }
 
+.uploadBTN {
+    border: 1px solid gray;
+    border-radius: 10px;
+    background-color: white;
+    color: rgb(174, 28, 63);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 10px 20px;
+}
+
+.uploadBTN:hover {
+    color: white;
+    background-color: rgb(174, 28, 63);
+}
+
+/* --- CSS CHO TAB TÀI LIỆU ĐÃ TẢI LÊN --- */
+.subTabNav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.subTabButton {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background-color: white;
+    color: var(--text-light);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.subTabButton:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.subTabButton.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.activeFileContent {
+    margin-top: 16px;
+}
+
+.fileCategory {
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.categoryTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.noFiles {
+    color: var(--text-light);
+    font-style: italic;
+    margin: 8px 0;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Uploaded files list styles (already saved files) */
+.filesList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.fileItem {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: box-shadow 0.2s ease;
+    width: 100%;
+}
+
+.fileItem:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.fileIcon {
+    font-size: 32px;
+    min-width: 40px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.fileDetails {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+
+.fileName {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+    word-break: break-word;
+    line-height: 1.3;
+}
+
+.fileInfo {
+    font-size: 11px;
+    color: var(--text-light);
+    line-height: 1.2;
+}
+
+.fileActions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    justify-content: flex-end;
+}
+
+.downloadBtn,
+.deleteBtn,
+.previewBtn {
+    padding: 6px 12px;
+    border: 1px solid;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.previewBtn {
+    background-color: white;
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.previewBtn:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.downloadBtn {
+    background-color: white;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.downloadBtn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.deleteBtn {
+    background-color: white;
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.deleteBtn:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modalContent {
+    background-color: white;
+    border-radius: 8px;
+    max-width: 90vw;
+    max-height: 90vh;
+    width: 800px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: #f8f9fa;
+}
+
+.modalHeader h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    max-width: 700px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.closeButton:hover {
+    background-color: #e9ecef;
+    color: #333;
+}
+
+.modalBody {
+    flex: 1;
+    overflow: auto;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+    background-color: #f8f9fa;
+}
+
+.modalFooter p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
 @media (max-width: 992px) {
     .detailsGrid {
         grid-template-columns: 1fr;
+    }
+
+    .modalContent {
+        width: 95vw;
+        max-height: 85vh;
+    }
+
+    .fileActions {
+        flex-direction: row;
+        gap: 4px;
+        justify-content: flex-end;
+    }
+
+    .downloadBtn,
+    .deleteBtn,
+    .previewBtn {
+        padding: 6px 8px;
+        font-size: 10px;
     }
 }

@@ -33,7 +33,7 @@ function AdminLayout({ children }) {
         event.preventDefault();
         localStorage.removeItem('token');
         toast.success("Đăng xuất thành công!");
-        navigate('/login');
+        navigate('/login', { replace: true }); // Chuyển về trang đăng nhập và thay thế lịch sử
     };
 
     return (

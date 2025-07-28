@@ -34,6 +34,7 @@
 .mainContent {
     flex-grow: 1; /* Cho phép content chiếm hết không gian còn lại */
     padding: 24px;
+    padding-top: 12px;
     overflow-y: auto; /* Cho phép content tự cuộn nếu cần (dù layout con sẽ quản lý việc này) */
 }
 

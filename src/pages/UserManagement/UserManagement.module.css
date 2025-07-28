@@ -1,21 +1,66 @@
-.pageContainer {
-    display: flex;
-    flex-direction: column;
-    /* Chiều cao của container bằng 100% chiều cao của parent (.mainContent) */
-    height: 100%; 
+:root {
+    --primary-color: #DA251D;
+    --primary-color-light: #fbe9e7;
+    --secondary-color: #00542B;
+    --secondary-color-light: #e8f5e9;
+    --text-light: #6c757d;
+    --border-color: #dee2e6;
+    --card-bg: #ffffff;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+    --card-shadow-hover: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1);
+    --text-color: #333;
 }
 
+/* Page Header - đồng bộ với Dashboard */
 .pageHeader {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
+    align-items: flex-start;
+    margin-bottom: 12px;
     flex-shrink: 0;
 }
 .pageHeader h1 {
     font-size: 24px;
     font-weight: 600;
     margin: 0;
+    color: var(--text-color);
+}
+.pageHeader p {
+    color: var(--text-light);
+    margin: 4px 0 0 0;
+}
+
+/* Card wrapper */
+.card {
+    background-color: var(--card-bg);
+    padding: 24px;
+    padding-top: 10px;
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Filter bar */
+.filterBar {
+    display: flex;
+    /* gap: 16px; */
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+.searchInput {
+    flex-grow: 1;
+    max-width: 400px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: var(--card-bg);
+    transition: border-color 0.2s ease;
+}
+.searchInput:focus {
+    outline: none;
+    border-color: var(--primary-color);
 }
 
 .addButton {
@@ -23,13 +68,14 @@
     border-radius: 6px;
     border: none;
     color: white;
-    font-weight: bold;
+    font-weight: 500;
     cursor: pointer;
-    background-color: #00542B;
-    transition: background-color 0.2s;
+    background-color: var(--secondary-color);
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 .addButton:hover {
     background-color: #003e1f;
+    transform: translateY(-1px);
 }
 
 .tableWrapper {
@@ -41,31 +87,80 @@
 
 .tableContainer {
     width: 100%;
-    overflow-y: auto; /* Chỉ vùng này có thanh cuộn dọc */
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px 8px 0 0; /* Bo góc trên */
+    overflow-y: auto;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .dataTable {
     width: 100%;
     border-collapse: collapse;
 }
+
+/* Sortable Header Styles */
+.sortableHeader {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+.sortableHeader:hover {
+    background-color: #e9ecef !important;
+}
+
+.sortableHeader.sorted {
+    background-color: var(--primary-color-light) !important;
+    color: var(--primary-color);
+}
+
+.headerContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sortIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    min-width: 16px;
+    height: 16px;
+    transition: opacity 0.2s ease;
+}
+
+.sortIcon svg {
+    transition: all 0.2s ease;
+}
+
+.sortableHeader:hover .sortIcon {
+    opacity: 0.8;
+}
+
+.sortableHeader.sorted .sortIcon {
+    opacity: 1;
+    color: var(--primary-color);
+}
 .dataTable thead {
     position: sticky;
     top: 0;
     z-index: 1;
 }
-.dataTable th, .dataTable td {
-    padding: 16px;
-    text-align: left;
-    border-bottom: 1px solid #dee2e6;
-    white-space: nowrap; /* Ngăn text xuống dòng */
-}
 .dataTable thead th {
     background-color: #f8f9fa;
     font-weight: 600;
-    color: #6c757d;
+    color: var(--text-light);
+    position: relative;
+}
+
+.dataTable th, .dataTable td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
 }
 .dataTable tbody tr:hover {
     background-color: #fbe9e7;
@@ -258,7 +353,7 @@
     border-radius: 6px;
 }
 
-.filterBar {
+/* .filterBar {
     margin-bottom: 24px;
     flex-shrink: 0;
 }
@@ -276,4 +371,4 @@
     border-radius: 6px;
     background-color: white;
     font-size: 14px;
-}
+} */

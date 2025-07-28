@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import styles from './UserManagement.module.css';
 import Pagination from '../../components/Pagination/Pagination';
+import { API_ENDPOINTS } from '../../config/api';
+import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -141,7 +143,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                     <div className={styles.modalBody}>
                         <div className={styles.formGroup}>
                             <label>Mã Nhân viên</label>
-                            <input type="text" value={user.employee_code} disabled />
+                            <input type="text" value={user.employee_code} />
                         </div>
                         <div className={styles.formGroup}>
                             <label>Tên đăng nhập</label>
@@ -188,6 +190,49 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
     );
 };
 
+// Component SortableHeader
+const SortableHeader = ({ field, currentSortField, sortDirection, onSort, children }) => {
+    const getSortIcon = () => {
+        if (currentSortField !== field) {
+            // Icon mặc định khi chưa sort - Both arrows
+            return (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 10l5-5 5 5z" opacity="0.3"/>
+                    <path d="M7 14l5 5 5-5z" opacity="0.3"/>
+                </svg>
+            );
+        }
+        
+        if (sortDirection === 'asc') {
+            // Icon sort tăng dần - Up arrow
+            return (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 14l5-5 5 5z"/>
+                </svg>
+            );
+        } else {
+            // Icon sort giảm dần - Down arrow
+            return (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 10l5 5 5-5z"/>
+                </svg>
+            );
+        }
+    };
+
+    return (
+        <th 
+            className={`${styles.sortableHeader} ${currentSortField === field ? styles.sorted : ''}`}
+            onClick={() => onSort(field)}
+        >
+            <div className={styles.headerContent}>
+                <span>{children}</span>
+                <span className={styles.sortIcon}>{getSortIcon()}</span>
+            </div>
+        </th>
+    );
+};
+
 function UserManagement() {
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -195,7 +240,16 @@ function UserManagement() {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [itemsPerPage, setItemsPerPage] = useState(5);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [sortField, setSortField] = useState('');
+    const [sortDirection, setSortDirection] = useState('asc');
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        type: 'warning'
+    });
     const navigate = useNavigate();
 
        // --- THÊM MỚI: State cho modal sửa ---
@@ -215,7 +269,7 @@ function UserManagement() {
             try {
                 setIsLoading(true);
                 setError(null);
-                const response = await fetch('http://localhost:3000/api/users', {
+                const response = await fetch(API_ENDPOINTS.USERS.LIST, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -237,15 +291,91 @@ function UserManagement() {
         fetchCases();
     }, [navigate]);
 
+    // Hàm xử lý sort
+    const handleSort = (field) => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('asc');
+        }
+    };
+
+    // Hàm sort dữ liệu
+    const sortUsers = (users) => {
+        if (!sortField) return users;
+        
+        return [...users].sort((a, b) => {
+            let aVal = a[sortField];
+            let bVal = b[sortField];
+            
+            // Xử lý các trường hợp đặc biệt
+            if (sortField === 'dept') {
+                const deptMap = {
+                    'KHCN': 'Khách hàng cá nhân',
+                    'KHDN': 'Khách hàng doanh nghiệp', 
+                    'KH&QLRR': 'Kế hoạch & quản lý rủi ro',
+                    'BGD': 'Ban Giám đốc',
+                    'IT': 'IT'
+                };
+                aVal = deptMap[aVal] || 'Chưa xác định';
+                bVal = deptMap[bVal] || 'Chưa xác định';
+            }
+            
+            if (sortField === 'role') {
+                const roleMap = {
+                    'employee': 'Cán bộ tín dụng',
+                    'manager': 'Trưởng phòng',
+                    'deputy_manager': 'Phó phòng',
+                    'director': 'Giám đốc',
+                    'deputy_director': 'Phó giám đốc',
+                    'administrator': 'Administrator'
+                };
+                aVal = roleMap[aVal] || 'Chưa xác định';
+                bVal = roleMap[bVal] || 'Chưa xác định';
+            }
+            
+            if (sortField === 'branch_code') {
+                const branchMap = {
+                    '6421': 'Hội sở',
+                    '6221': 'Chi nhánh Nam Hoa',
+                    '1605': 'Chi nhánh 6'
+                };
+                aVal = branchMap[aVal] || 'Chưa xác định';
+                bVal = branchMap[bVal] || 'Chưa xác định';
+            }
+            
+            if (sortField === 'status') {
+                aVal = aVal === 'active' ? 'Hoạt động' : 'Vô hiệu hóa';
+                bVal = bVal === 'active' ? 'Hoạt động' : 'Vô hiệu hóa';
+            }
+            
+            // Chuyển về string để so sánh
+            aVal = String(aVal).toLowerCase();
+            bVal = String(bVal).toLowerCase();
+            
+            if (sortDirection === 'asc') {
+                return aVal.localeCompare(bVal);
+            } else {
+                return bVal.localeCompare(aVal);
+            }
+        });
+    };
+
     const filteredUsers = useMemo(() => {
         setCurrentPage(1);
-        if (!searchTerm) return users;
-        return users.filter(user =>
-            user.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.employee_code.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [users, searchTerm]);
+        let filtered = users;
+        
+        if (searchTerm) {
+            filtered = users.filter(user =>
+                user.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.employee_code.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+        
+        return sortUsers(filtered);
+    }, [users, searchTerm, sortField, sortDirection]);
 
     const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -261,7 +391,7 @@ function UserManagement() {
         // console.log('Adding new user with data:', newUserData);
 
         try {
-            const response = await fetch('http://localhost:3000/api/users/create', {
+            const response = await fetch(API_ENDPOINTS.USERS.CREATE, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -278,7 +408,7 @@ function UserManagement() {
             }
 
             // gọi lại api để cập nhật danh sách người dùng
-            const updatedResponse = await fetch('http://localhost:3000/api/users', {
+            const updatedResponse = await fetch(API_ENDPOINTS.USERS.LIST, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -324,36 +454,44 @@ function UserManagement() {
     };
 
     const handleDeleteUser = async (userId) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này không?')) {
-            // gọi API để xóa người dùng
-            fetch(`http://localhost:3000/api/users/${userId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Không thể xóa người dùng.');
+        const userToDelete = users.find(user => user.employee_code === userId);
+        
+        setConfirmModal({
+            isOpen: true,
+            title: 'Xóa người dùng',
+            message: `Bạn có chắc chắn muốn xóa người dùng "${userToDelete?.fullname || userId}"? Hành động này không thể hoàn tác.`,
+            type: 'danger',
+            onConfirm: async () => {
+                // gọi API để xóa người dùng
+                fetch(API_ENDPOINTS.USERS.DELETE(userId), {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
-                    return response.json();
                 })
-                .then(async () => {
-                    // gọi lại api để cập nhật danh sách người dùng
-                    const updatedResponse = await fetch('http://localhost:3000/api/users', {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Không thể xóa người dùng.');
                         }
-                    });
-                    const updatedData = await updatedResponse.json();
-                    setUsers(updatedData.users);
-                    toast.success('Xóa người dùng thành công!');
-                })
-                .catch(error => {
-                    // console.error('Lỗi khi xóa người dùng:', error);
-                    toast.error(`Đã xảy ra lỗi: ${error.message}`);
-                })
-        }
+                        return response.json();
+                    })
+                    .then(async () => {
+                        // gọi lại api để cập nhật danh sách người dùng
+                        const updatedResponse = await fetch(API_ENDPOINTS.USERS.LIST, {
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                            }
+                        });
+                        const updatedData = await updatedResponse.json();
+                        setUsers(updatedData.users);
+                        toast.success('Xóa người dùng thành công!');
+                    })
+                    .catch(error => {
+                        // console.error('Lỗi khi xóa người dùng:', error);
+                        toast.error(`Đã xảy ra lỗi: ${error.message}`);
+                    })
+            }
+        });
     };
 
     if (isLoading) {
@@ -365,7 +503,7 @@ function UserManagement() {
     }
 
     return (
-        <div className={styles.pageContainer}>
+        <>
             <AddUserModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
@@ -379,33 +517,85 @@ function UserManagement() {
             />
 
             <div className={styles.pageHeader}>
-                <h1>Quản lý Người dùng</h1>
+                <div>
+                    <h1>Quản lý Người dùng</h1>
+                </div>
                 <button className={styles.addButton} onClick={() => setIsAddModalOpen(true)}>
                     + Thêm Người dùng
                 </button>
             </div>
 
-            <div className={styles.filterBar}>
-                <input
-                    type="text"
-                    className={styles.searchInput}
-                    placeholder="Tìm theo Mã NV, Tên, Tên đăng nhập..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-            <div className={styles.tableWrapper}>
+            <div className={styles.card}>
+                <div className={styles.filterBar}>
+                    <input
+                        type="text"
+                        className={styles.searchInput}
+                        placeholder="Tìm theo Mã NV, Tên, Tên đăng nhập..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                
                 <div className={styles.tableContainer}>
                     <table className={styles.dataTable}>
                         <thead>
                             <tr>
-                                <th>Mã Nhân viên</th>
-                                <th>Họ và Tên</th>
-                                <th>Tên đăng nhập</th>
-                                <th>Phòng ban</th>
-                                <th>Chức vụ</th>
-                                <th>Chi nhánh</th>
-                                <th>Trạng thái</th>
+                                <SortableHeader 
+                                    field="employee_code" 
+                                    currentSortField={sortField} 
+                                    sortDirection={sortDirection} 
+                                    onSort={handleSort}
+                                >
+                                    Mã Nhân viên
+                                </SortableHeader>
+                                <SortableHeader 
+                                    field="fullname" 
+                                    currentSortField={sortField} 
+                                    sortDirection={sortDirection} 
+                                    onSort={handleSort}
+                                >
+                                    Họ và Tên
+                                </SortableHeader>
+                                <SortableHeader 
+                                    field="username" 
+                                    currentSortField={sortField} 
+                                    sortDirection={sortDirection} 
+                                    onSort={handleSort}
+                                >
+                                    Tên đăng nhập
+                                </SortableHeader>
+                                <SortableHeader 
+                                    field="dept" 
+                                    currentSortField={sortField} 
+                                    sortDirection={sortDirection} 
+                                    onSort={handleSort}
+                                >
+                                    Phòng ban
+                                </SortableHeader>
+                                <SortableHeader 
+                                    field="role" 
+                                    currentSortField={sortField} 
+                                    sortDirection={sortDirection} 
+                                    onSort={handleSort}
+                                >
+                                    Chức vụ
+                                </SortableHeader>
+                                <SortableHeader 
+                                    field="branch_code" 
+                                    currentSortField={sortField} 
+                                    sortDirection={sortDirection} 
+                                    onSort={handleSort}
+                                >
+                                    Chi nhánh
+                                </SortableHeader>
+                                <SortableHeader 
+                                    field="status" 
+                                    currentSortField={sortField} 
+                                    sortDirection={sortDirection} 
+                                    onSort={handleSort}
+                                >
+                                    Trạng thái
+                                </SortableHeader>
                                 <th>Hành động</th>
                             </tr>
                         </thead>
@@ -454,8 +644,8 @@ function UserManagement() {
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <div className={styles.paginationContainer}>
+                
+                <div className={styles.paginationContainer}>
                 <div className={styles.rowsPerPageSelector}>
                     <span>Hiển thị:</span>
                     <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
@@ -471,10 +661,19 @@ function UserManagement() {
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={setCurrentPage}
-                />
+                    />
+                </div>
             </div>
-        </div>
+            
+            {/* Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                type={confirmModal.type}
+            />
+        </>
     );
-}
-
-export default UserManagement;
+}export default UserManagement;

@@ -174,6 +174,7 @@ import { useDropzone } from 'react-dropzone';
 import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
 import styles from './Import.module.css';
+import { API_ENDPOINTS } from '../../config/api';
 
 // Component con cho các icon
 const SvgIcon = ({ path, className = '' }) => (
@@ -229,8 +230,8 @@ const UploadArea = ({ importType }) => {
         }
 
         const apiEndpoint = importType === 'internal'
-            ? 'http://localhost:3000/api/cases/import-internal'
-            : 'http://localhost:3000/api/cases/import-external';
+            ? API_ENDPOINTS.CASES.IMPORT_INTERNAL
+            : API_ENDPOINTS.CASES.IMPORT_EXTERNAL;
 
         toast.loading(`Đang import file cho ${importType === 'internal' ? 'Nội bảng' : 'Ngoại bảng'}...`, { id: 'uploading' });
 

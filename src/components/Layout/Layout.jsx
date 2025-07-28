@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
 import styles from './Layout.module.css';
 import toast from 'react-hot-toast';
+import btpLogo from '../../assets/BTP.svg';
 
 // Component SVG Icon để tái sử dụng
 const SvgIcon = ({ path }) => (
@@ -61,14 +62,16 @@ function Layout({ children }) {
     const handleLogout = (event) => {
         event.preventDefault();
         localStorage.removeItem('token'); // Xóa token
-        navigate('/login'); // Chuyển về trang đăng nhập
+        navigate('/login', { replace: true }); // Chuyển về trang đăng nhập và thay thế lịch sử
         toast.success('Bạn đã đăng xuất thành công!');
     };
 
     return (
         <div className={styles.appContainer}>
             <aside className={`${styles.appSidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
-                <div className={styles.logo}>KẾ HOẠCH &<br></br>QUẢN LÝ RỦI RO</div>
+                <div className={styles.logo}>
+                    <img src={btpLogo} alt="BTP Logo" />
+                </div>
                 <nav>
                     <ul className={styles.navList}>
                         <li>

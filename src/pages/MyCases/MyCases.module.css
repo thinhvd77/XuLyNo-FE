@@ -1,13 +1,36 @@
 :root {
     --primary-color: #da251d;
+    --primary-color-light: #fbe9e7;
+    --secondary-color: #00542b;
+    --secondary-color-light: #e8f5e9;
+    --text-light: #6c757d;
     --border-color: #dee2e6;
     --card-bg: #ffffff;
-    --text-light: #6c757d;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    --card-shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.05),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+    --text-color: #333;
+
     --status-new: #2196f3;
     --status-inprogress: #ffc107;
     --status-lawsuit: #da251d;
+    --status-execution: #fb6132;
+    --status-completed: #46f251;
+
+    --status-new: #b2ebf2; /* Mới - xanh cyan đậm */
+    --status-debt-recovery: #ffe082; /* Đang thu hồi nợ - vàng sáng đậm */
+    --status-lawsuit-proposed: #ffd54f; /* Đề xuất khởi kiện - vàng cam */
+    --status-lawsuit-in-progress: #f28b82; /* Đang khởi kiện - đỏ hồng */
+    --status-awaiting-trial: #ec7063; /* Đang chờ xét xử - đỏ vừa */
+    --status-awaiting-enforcement: #e74c3c; /* Đang chờ thi hành án - đỏ sậm */
+    --status-enforcement-in-progress: #c0392b; /* Đang thi hành án - đỏ máu */
+    --status-enforcement-completed: #81c784; /* Đã thi hành xong - xanh lá */
+    --status-collateral-processed: #4caf50; /* Đã xử lý tài sản - xanh lá đậm */
+    --status-written-off: #b0bec5; /* Đã xóa nợ / tổn thất - xám lạnh */
+    --status-fully-settled: #64b5f6; /* Đã tất toán - xanh dương trung bình */
 }
 
+/* Page Header - đồng bộ với Dashboard */
 .pageHeader {
     margin-bottom: 24px;
 }
@@ -15,6 +38,20 @@
     font-size: 24px;
     font-weight: 600;
     margin: 0;
+    color: var(--text-color);
+}
+.pageHeader p {
+    color: var(--text-light);
+    margin: 4px 0 0 0;
+}
+
+/* Card wrapper */
+.card {
+    background-color: var(--card-bg);
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .filterBar {
@@ -86,9 +123,35 @@
     color: white;
     white-space: nowrap;
 }
-.statusNew { background-color: var(--status-new); }
-.statusInprogress { background-color: var(--status-inprogress); color: #333; }
-.statusLawsuit { background-color: var(--status-lawsuit); }
+
+.newStatus {
+    background-color: var(--status-new);
+    color: #333;
+}
+.debtRecoveryInProgress {
+    background-color: var(--status-debt-recovery);
+    color: #333;
+}
+.lawsuitInProgress {
+    background-color: var(--status-lawsuit-in-progress);
+    color: #333;
+}
+.awaitingTrial {
+    background-color: var(--status-awaiting-trial);
+    color: white;
+}
+.awaitingEnforcement {
+    background-color: var(--status-awaiting-enforcement);
+    color: white;
+}
+.enforcementInProgress {
+    background-color: var(--status-enforcement-in-progress);
+    color: white;
+}
+.completed {
+    background-color: var(--status-enforcement-completed);
+    color: #333;
+}
 
 .paginationContainer {
     display: flex;
@@ -100,7 +163,9 @@
     color: var(--text-light);
 }
 
-.loading, .error, .noData {
+.loading,
+.error,
+.noData {
     text-align: center;
     padding: 40px;
     font-size: 16px;

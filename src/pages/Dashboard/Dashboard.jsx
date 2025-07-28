@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import styles from './Dashboard.module.css';
+import { API_ENDPOINTS } from '../../config/api';
 
 // Đăng ký các module cần thiết của Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -33,7 +34,7 @@ function Dashboard() {
             }
 
             try {
-                const response = await fetch('http://localhost:3000/api/dashboard/stats', {
+                const response = await fetch(API_ENDPOINTS.DASHBOARD.STATS, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
