@@ -80,6 +80,15 @@ function UserLayout({ children }) {
                                 <span>Hồ sơ của tôi</span>
                             </NavLink>
                         </li>
+                        {/* Department Dashboard - chỉ hiển thị cho manager/deputy_manager */}
+                        {user && (user.role === 'manager' || user.role === 'deputy_manager') && (
+                            <li>
+                                <NavLink to="/manager-dashboard" className={({ isActive }) => isActive ? styles.active : ''}>
+                                    <SvgIcon path="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+                                    <span>Hồ sơ của phòng</span>
+                                </NavLink>
+                            </li>
+                        )}
                     </ul>
                 </nav>
             </aside>

@@ -1,15 +1,9 @@
+/* ManagerLayout.module.css - Đồng bộ với UserLayout nhưng có customization riêng */
 :root {
-    --primary-color: #DA251D;
-    --primary-color-light: #fbe9e7;
-    --secondary-color: #00542B;
-    --secondary-color-light: #e8f5e9;
-    --text-light: #6c757d;
-    --border-color: #dee2e6;
-    --card-bg: #ffffff;
-    --card-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-    --card-shadow-hover: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1);
-    
+    --primary-color: #da251d;
     --sidebar-bg: #212529;
+    --card-bg: #ffffff;
+    --border-color: #dee2e6;
     --text-color: #333;
     --sidebar-width: 240px;
 }
@@ -27,6 +21,10 @@
     padding-top: 10px;
     position: fixed;
     top: 0;
+    left: 0;
+}
+
+.sidebarOpen {
     left: 0;
 }
 
@@ -48,6 +46,10 @@
     padding: 0;
     margin: 0;
     margin-top: 20px;
+}
+
+.navList li {
+    margin: 0.5rem 0;
 }
 
 .navList a {
@@ -80,74 +82,39 @@
     margin-left: var(--sidebar-width);
 }
 
-.mainContent {
-    padding: 24px;
-    padding-bottom: 0px;
-    background-color: #f8f9fa;
-    min-height: calc(100vh - 100px);
-}
-
-/* Page Header Styles - đồng bộ với Dashboard */
-.pageHeader {
-    margin-bottom: 24px;
-}
-
-.pageHeader h1 {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0;
-    color: var(--text-color);
-}
-
-.pageHeader p {
-    color: var(--text-light);
-    margin: 4px 0 0 0;
-}
-
-/* Card Styles - đồng bộ với Dashboard */
-.card {
-    background-color: var(--card-bg);
-    padding: 24px;
-    border-radius: 8px;
-    box-shadow: var(--card-shadow);
-    margin-bottom: 24px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--card-shadow-hover);
-}
-
-.cardHeader {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: var(--text-color);
-}
-
-/* Grid System - đồng bộ với Dashboard */
-.contentGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 24px;
-}
-
-.statsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 24px;
-    margin-bottom: 24px;
-}
-
 .appHeader {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     padding: 0 24px;
-    height: 64px;
-    background-color: var(--card-bg);
+    height: 60px;
+    background-color: #fff;
     border-bottom: 1px solid var(--border-color);
+}
+
+.sidebarToggle {
+    display: none;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.sidebarToggle:hover {
+    background-color: #f8f9fa;
+}
+
+.sidebarToggle span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: #495057;
+    margin: 3px 0;
+    transition: 0.3s;
+    border-radius: 2px;
 }
 
 .userMenu {
@@ -155,9 +122,6 @@
     cursor: pointer;
     padding: 8px;
     border-radius: 6px;
-}
-.userMenu:hover {
-    background-color: #f1f1f1;
 }
 
 .dropdownContent {
@@ -183,3 +147,62 @@
 .dropdownContent a:hover {
     background-color: #f1f1f1;
 }
+
+.mainContent {
+    padding: 10px 24px;
+    padding-bottom: 0;
+}
+
+/* Mobile Responsive
+@media (max-width: 768px) {
+    .appSidebar {
+        width: 100%;
+        left: -100%;
+    }
+    
+    .sidebarOpen {
+        left: 0;
+    }
+    
+    .sidebarToggle {
+        display: flex;
+    }
+    
+    .appHeader {
+        padding: 1rem;
+    }
+    
+    .userMenu {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .logo {
+        padding: 1.5rem 1rem 1rem;
+    }
+    
+    .logo img {
+        max-width: 100px;
+    }
+    
+    .navList a {
+        padding: 1rem 1.5rem;
+    }
+    
+    .icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 0.8rem;
+    }
+}
+
+@media (min-width: 769px) {
+    .appSidebar {
+        position: relative;
+        left: 0;
+    }
+    
+    .mainWrapper {
+        margin-left: 0;
+    }
+} */

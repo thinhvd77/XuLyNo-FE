@@ -13,6 +13,12 @@
     --body-bg: #f4f7fa;
 }
 
+/* Keyframes for loading animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Page Header - đồng bộ với Dashboard */
 .pageHeader {
     margin-bottom: 24px;

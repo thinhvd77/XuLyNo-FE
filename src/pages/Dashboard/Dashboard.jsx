@@ -90,7 +90,6 @@ function Dashboard() {
         <>
             <div className={styles.pageHeader}>
                 <h1>Tổng quan</h1>
-                <p>Tổng quan tình hình xử lý nợ.</p>
             </div>
 
             <section className={styles.statsGrid}>
@@ -106,6 +105,36 @@ function Dashboard() {
                     value={`${(stats?.totalOutstandingDebt / 1e9).toFixed(2) || 0} Tỷ`} 
                     type="secondary" 
                 />
+            </section>
+
+            {/* Thống kê nội bảng và ngoại bảng */}
+            <section className={styles.debtTypeGrid}>
+                <div className={styles.card}>
+                    <div className={styles.cardHeader}>Nội bảng</div>
+                    <div className={styles.debtTypeStats}>
+                        <div className={styles.debtTypeStat}>
+                            <div className={styles.statLabel}>Số hồ sơ</div>
+                            <div className={styles.statValue}>{stats?.internalCases.toLocaleString('vi-VN') || 0}</div>
+                        </div>
+                        <div className={styles.debtTypeStat}>
+                            <div className={styles.statLabel}>Dư nợ</div>
+                            <div className={styles.statValue}>{`${(stats?.internalOutstandingDebt / 1e9).toFixed(2) || 0} Tỷ`}</div>
+                        </div>
+                    </div>
+                </div>
+                <div className={styles.card}>
+                    <div className={styles.cardHeader}>Ngoại bảng</div>
+                    <div className={styles.debtTypeStats}>
+                        <div className={styles.debtTypeStat}>
+                            <div className={styles.statLabel}>Số hồ sơ</div>
+                            <div className={styles.statValue}>{stats?.externalCases.toLocaleString('vi-VN') || 0}</div>
+                        </div>
+                        <div className={styles.debtTypeStat}>
+                            <div className={styles.statLabel}>Dư nợ</div>
+                            <div className={styles.statValue}>{`${(stats?.externalOutstandingDebt / 1e9).toFixed(2) || 0} Tỷ`}</div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section className={styles.contentGrid}>

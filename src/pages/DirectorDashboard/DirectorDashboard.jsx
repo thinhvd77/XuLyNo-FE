@@ -1,0 +1,362 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './DirectorDashboard.module.css';
+import { API_ENDPOINTS } from '../../config/api';
+import CaseDetailModal from '../../components/CaseDetailModal/CaseDetailModal';
+import DataTable from '../../components/DataTable/DataTable';
+import { jwtDecode } from "jwt-decode";
+
+export default function DirectorDashboard() {
+    const [cases, setCases] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
+    const [selectedCaseId, setSelectedCaseId] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [totalCases, setTotalCases] = useState(0);
+    const [sortField, setSortField] = useState('');
+    const [sortDirection, setSortDirection] = useState('asc');
+    const [currentUser, setCurrentUser] = useState(null);
+    const limit = 10; // Số dòng mỗi trang
+    const navigate = useNavigate();
+
+    // Get current user from token
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                setCurrentUser(decoded);
+            } catch (error) {
+                console.error('Error decoding token:', error);
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchAllCases();
+    }, [currentPage, searchTerm, filterType, filterStatus, sortField, sortDirection, currentUser]);
+
+    // Reset trang về 1 khi thay đổi bộ lọc hoặc sort
+    useEffect(() => {
+        if (currentPage !== 1) {
+            setCurrentPage(1);
+        }
+    }, [searchTerm, filterType, filterStatus, sortField, sortDirection]);
+
+    const fetchAllCases = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            // Tạo URL với các tham số sort
+            let url = `${API_ENDPOINTS.CASES.ALL_CASES}?page=${currentPage}&limit=${limit}&search=${searchTerm}&type=${filterType}&status=${filterStatus}`;
+            
+            // Thêm tham số sort nếu có
+            if (sortField) {
+                url += `&sortBy=${sortField}&sortOrder=${sortDirection}`;
+            }
+
+            // Branch-based filtering for BGĐ directors
+            // Nếu BGĐ thuộc chi nhánh khác không phải 6421 thì chỉ hiển thị hồ sơ thuộc chi nhánh đó
+            if (currentUser && currentUser.dept === 'BGĐ' && currentUser.branch_code !== '6421') {
+                url += `&branch_code=${currentUser.branch_code}`;
+            }
+
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Không thể tải danh sách hồ sơ.');
+            }
+
+            const result = await response.json();
+            setCases(result.data.cases || []);
+            setTotalPages(result.data.totalPages || 1);
+            setTotalCases(result.data.totalCases || 0);
+
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleViewDetail = (row) => {
+        setSelectedCaseId(row.case_id);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedCaseId(null);
+    };
+
+    const handleSort = (field) => {
+        // Nếu click vào cùng field, đổi direction
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            // Field mới, set thành asc
+            setSortField(field);
+            setSortDirection('asc');
+        }
+    };
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(amount);
+    };
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('vi-VN');
+    };
+
+    // Component để hiển thị loại case (nội bảng/ngoại bảng) - đồng bộ với MyCases
+    const CaseTypeBadge = ({ caseType }) => {
+        const isInternal = caseType === 'internal';
+        return (
+            <span className={`${styles.caseTypeBadge} ${isInternal ? styles.internal : styles.external}`}>
+                {isInternal ? 'Nội bảng' : 'Ngoại bảng'}
+            </span>
+        );
+    };
+
+    // Helper function để chuyển đổi status code thành tên hiển thị (đồng bộ với MyCases)
+    const getStatusDisplayName = (status) => {
+        const statusMap = {
+            'beingFollowedUp': 'Đang đôn đốc',
+            'beingSued': 'Đang khởi kiện',
+            'awaitingJudgmentEffect': 'Chờ hiệu lực án',
+            'beingExecuted': 'Đang thi hành án',
+            'proactivelySettled': 'Chủ động XLTS',
+            'debtSold': 'Bán nợ',
+            'amcHired': 'Thuê AMC XLN'
+        };
+        return statusMap[status] || status;
+    };
+
+    const getStatusClass = (status) => {
+        const statusClassMap = {
+            'beingFollowedUp': 'beingFollowedUp',
+            'beingSued': 'beingSued',
+            'awaitingJudgmentEffect': 'awaitingJudgmentEffect',
+            'beingExecuted': 'beingExecuted',
+            'proactivelySettled': 'proactivelySettled',
+            'debtSold': 'debtSold',
+            'amcHired': 'amcHired',
+        };
+        return statusClassMap[status] || 'statusDefault';
+    };
+
+    // Định nghĩa columns cho DataTable
+    const tableColumns = [
+        {
+            key: 'customer_code',
+            title: 'Mã KH',
+            width: '120px',
+            render: (value) => (
+                <span style={{ fontWeight: '600', color: '#495057' }}>{value}</span>
+            )
+        },
+        {
+            key: 'customer_name',
+            title: 'Tên khách hàng',
+            width: '300px',
+            render: (value) => (
+                <span className="customerNameCell" style={{
+                    fontWeight: '500'
+                }}>{value}</span>
+            )
+        },
+        {
+            key: 'outstanding_debt',
+            title: 'Dư nợ',
+            width: '150px',
+            sortValue: (value) => {
+                // Chuyển đổi về số để sort chính xác
+                const numValue = parseFloat(value);
+                return isNaN(numValue) ? 0 : numValue;
+            },
+            render: (value) => (
+                <span className="currencyCell" style={{ color: '#28a745', fontWeight: '600' }}>
+                    {formatCurrency(value)}
+                </span>
+            )
+        },
+        {
+            key: 'case_type',
+            title: 'Loại',
+            width: '120px',
+            sortValue: (value) => {
+                // Trả về số để sort theo thứ tự logic: Nội bảng (1) trước, Ngoại bảng (2) sau
+                return value === 'internal' ? 1 : 2;
+            },
+            render: (value) => <CaseTypeBadge caseType={value} />
+        },
+        {
+            key: 'state',
+            title: 'Trạng thái',
+            width: '120px',
+            sortValue: (value) => {
+                // Sắp xếp theo thứ tự ưu tiên status codes
+                const order = {
+                    'beingFollowedUp': 1,
+                    'beingSued': 2,
+                    'awaitingJudgmentEffect': 3,
+                    'beingExecuted': 4,
+                    'proactivelySettled': 5,
+                    'debtSold': 6,
+                    'amcHired': 7
+                };
+                return order[value] || 999;
+            },
+            render: (value) => (
+                <span className={`statusCell ${styles[getStatusClass(value)]}`}>
+                    {getStatusDisplayName(value)}
+                </span>
+            )
+        },
+        {
+            key: 'created_date',
+            title: 'Ngày tạo',
+            width: '120px',
+            sortValue: (value) => {
+                // Chuyển đổi string thành Date object để sort chính xác
+                return new Date(value).getTime();
+            },
+            render: (value) => (
+                <span className="dateCell" style={{ color: '#6c757d', fontSize: '13px' }}>
+                    {formatDate(value)}
+                </span>
+            )
+        },
+        {
+            key: 'officer',
+            title: 'Người phụ trách',
+            width: '180px',
+            sortValue: (value, row) => row.officer?.fullname || 'Chưa phân công',
+            render: (value, row) => (
+                <span className="officerCell" style={{ color: '#495057', fontWeight: '500' }}>
+                    {row.officer?.fullname || 'Chưa phân công'}
+                </span>
+            )
+        }
+    ];
+
+    if (error) {
+        return <div className={`${styles.message} ${styles.error}`}>Lỗi: {error}</div>;
+    }
+
+    return (
+        <div className={styles.directorDashboard}>
+            <div className={styles.pageHeader}>
+                <div className={styles.headerContent}>
+                    <h1>Danh sách tất cả hồ sơ</h1>
+                </div>
+            </div>
+
+            {/* Bộ lọc và tìm kiếm */}
+            <div className={styles.filterSection}>
+                <div className={styles.searchBox}>
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm theo tên khách hàng hoặc mã khách hàng..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className={styles.searchInput}
+                    />
+                </div>
+                <div className={styles.filters}>
+                    <select
+                        value={filterType}
+                        onChange={(e) => setFilterType(e.target.value)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="">Tất cả loại</option>
+                        <option value="internal">Nội bảng</option>
+                        <option value="external">Ngoại bảng</option>
+                    </select>
+                    <select
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="beingFollowedUp">Đang đôn đốc</option>
+                        <option value="beingSued">Đang khởi kiện</option>
+                        <option value="awaitingJudgmentEffect">Chờ hiệu lực án</option>
+                        <option value="beingExecuted">Đang thi hành án</option>
+                        <option value="proactivelySettled">Chủ động XLTS</option>
+                        <option value="debtSold">Bán nợ</option>
+                        <option value="amcHired">Thuê AMC XLN</option>
+                    </select>
+                </div>
+            </div>
+
+            {/* Container cho DataTable với phân trang */}
+            <div className={styles.tableWithPagination}>
+                {/* Danh sách hồ sơ - Data Table */}
+                <div style={{ minHeight: 0, display: 'flex', flexDirection: 'column', height: '600px' }}>
+                    <DataTable
+                        data={cases}
+                        columns={tableColumns}
+                        onRowAction={handleViewDetail}
+                        actionButtonText="Xem chi tiết"
+                        actionWidth="120px"
+                        isLoading={isLoading}
+                        emptyMessage="Không tìm thấy hồ sơ nào."
+                        sortable={true}
+                        onSort={handleSort}
+                        sortField={sortField}
+                        sortDirection={sortDirection}
+                        serverSideSort={true}
+                    />
+                </div>
+
+                {/* Phân trang - Fixed at bottom */}
+                {totalPages > 1 && (
+                    <div className={styles.pagination}>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1}
+                            className={styles.pageBtn}
+                        >
+                            Trang trước
+                        </button>
+                        <span className={styles.pageInfo}>
+                            Trang {currentPage} / {totalPages} ({totalCases} hồ sơ)
+                        </span>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                            disabled={currentPage === totalPages}
+                            className={styles.pageBtn}
+                        >
+                            Trang sau
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Modal hiển thị chi tiết case */}
+            <CaseDetailModal
+                caseId={selectedCaseId}
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+            />
+        </div>
+    );
+}

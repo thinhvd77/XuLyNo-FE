@@ -63,7 +63,7 @@ const AddUserModal = ({ isOpen, onClose, onSave }) => {
                                 <option value="KHCN">Khách hàng cá nhân</option>
                                 <option value="KHDN">Khách hàng doanh nghiệp</option>
                                 <option value="KH&QLRR">Kế hoạch & quản lý rủi ro</option>
-                                <option value="BGD">Ban Giám đốc</option>
+                                <option value="BGĐ">Ban Giám đốc</option>
                                 <option value="IT">IT</option>
                             </select>
                         </div>
@@ -159,7 +159,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                                 <option value="KHCN">Khách hàng cá nhân</option>
                                 <option value="KHDN">Khách hàng doanh nghiệp</option>
                                 <option value="KH&QLRR">Kế hoạch & quản lý rủi ro</option>
-                                <option value="BGD">Ban Giám đốc</option>
+                                <option value="BGĐ">Ban Giám đốc</option>
                                 <option value="IT">IT</option>
                             </select>
                         </div>
@@ -167,7 +167,10 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                             <label htmlFor="edit-role">Chức vụ</label>
                             <select id="edit-role" value={role} onChange={e => setRole(e.target.value)}>
                                 <option value="employee">Cán bộ tín dụng</option>
+                                <option value="deputy_manager">Phó phòng</option>
                                 <option value="manager">Trưởng phòng</option>
+                                <option value="deputy_director">Phó giám đốc</option>
+                                <option value="director">Giám đốc</option>
                                 <option value="administrator">Administrator</option>
                             </select>
                         </div>
@@ -194,27 +197,27 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
 const SortableHeader = ({ field, currentSortField, sortDirection, onSort, children }) => {
     const getSortIcon = () => {
         if (currentSortField !== field) {
-            // Icon mặc định khi chưa sort - Both arrows
+            // Icon mặc định khi chưa sort - Both arrows (outlined)
             return (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7 10l5-5 5 5z" opacity="0.3"/>
-                    <path d="M7 14l5 5 5-5z" opacity="0.3"/>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 10L12 6L16 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8 14L12 18L16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
             );
         }
         
         if (sortDirection === 'asc') {
-            // Icon sort tăng dần - Up arrow
+            // Icon sort tăng dần - Up arrow (outlined)
             return (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7 14l5-5 5 5z"/>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 14L12 10L16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
             );
         } else {
-            // Icon sort giảm dần - Down arrow
+            // Icon sort giảm dần - Down arrow (outlined)
             return (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7 10l5 5 5-5z"/>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 10L12 14L16 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
             );
         }
@@ -315,7 +318,7 @@ function UserManagement() {
                     'KHCN': 'Khách hàng cá nhân',
                     'KHDN': 'Khách hàng doanh nghiệp', 
                     'KH&QLRR': 'Kế hoạch & quản lý rủi ro',
-                    'BGD': 'Ban Giám đốc',
+                    'BGĐ': 'Ban Giám đốc',
                     'IT': 'IT'
                 };
                 aVal = deptMap[aVal] || 'Chưa xác định';
@@ -431,26 +434,78 @@ function UserManagement() {
         setIsEditModalOpen(true);
     };
 
-    const handleEditUser = (userId, updatedData) => {
-        // Mô phỏng gọi API và cập nhật lại state
-        toast.promise(
-            new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
-                setUsers(users.map(u => u.id === userId ? { ...u, ...updatedData } : u));
+    const handleEditUser = async (userId, updatedData) => {
+        const token = localStorage.getItem('token');
+        
+        try {
+            const response = await fetch(API_ENDPOINTS.USERS.UPDATE(userId), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updatedData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                // Cập nhật user trong state
+                setUsers(users.map(u => 
+                    u.employee_code === userId ? { ...u, ...result.user } : u
+                ));
                 setIsEditModalOpen(false);
-            }),
-            {
-                loading: 'Đang cập nhật...',
-                success: 'Cập nhật người dùng thành công!',
-                error: 'Cập nhật thất bại!',
+                toast.success('Cập nhật người dùng thành công!');
+            } else {
+                toast.error(result.message || 'Cập nhật thất bại!');
             }
-        );
+        } catch (error) {
+            console.error('Error updating user:', error);
+            toast.error('Đã có lỗi xảy ra khi cập nhật!');
+        }
     };
 
-    const handleDisableUser = (userId) => {
-        // Mô phỏng gọi API để thay đổi trạng thái
-        setUsers(users.map(user =>
-            user.employee_code === userId ? { ...user, status: user.status === 'active' ? 'disabled' : 'active' } : user
-        ));
+    const handleDisableUser = async (userId) => {
+        const currentUser = users.find(user => user.employee_code === userId);
+        const action = currentUser?.status === 'active' ? 'vô hiệu hóa' : 'kích hoạt';
+        const actionText = currentUser?.status === 'active' ? 'vô hiệu hóa' : 'kích hoạt';
+        
+        setConfirmModal({
+            isOpen: true,
+            title: `${action.charAt(0).toUpperCase() + action.slice(1)} người dùng`,
+            message: `Bạn có chắc chắn muốn ${action} người dùng "${currentUser?.fullname || userId}"?`,
+            type: currentUser?.status === 'active' ? 'warning' : 'info',
+            onConfirm: async () => {
+                const token = localStorage.getItem('token');
+                
+                try {
+                    const response = await fetch(API_ENDPOINTS.USERS.TOGGLE_STATUS(userId), {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        // Cập nhật user trong state
+                        setUsers(users.map(user =>
+                            user.employee_code === userId ? { ...user, ...result.user } : user
+                        ));
+                        toast.success(result.message);
+                    } else {
+                        toast.error(result.message || `Không thể ${actionText} người dùng!`);
+                    }
+                } catch (error) {
+                    console.error('Error toggling user status:', error);
+                    toast.error(`Đã có lỗi xảy ra khi ${actionText} người dùng!`);
+                }
+                
+                setConfirmModal({ isOpen: false });
+            },
+            onCancel: () => setConfirmModal({ isOpen: false })
+        });
     };
 
     const handleDeleteUser = async (userId) => {
@@ -536,132 +591,134 @@ function UserManagement() {
                     />
                 </div>
                 
-                <div className={styles.tableContainer}>
-                    <table className={styles.dataTable}>
-                        <thead>
-                            <tr>
-                                <SortableHeader 
-                                    field="employee_code" 
-                                    currentSortField={sortField} 
-                                    sortDirection={sortDirection} 
-                                    onSort={handleSort}
-                                >
-                                    Mã Nhân viên
-                                </SortableHeader>
-                                <SortableHeader 
-                                    field="fullname" 
-                                    currentSortField={sortField} 
-                                    sortDirection={sortDirection} 
-                                    onSort={handleSort}
-                                >
-                                    Họ và Tên
-                                </SortableHeader>
-                                <SortableHeader 
-                                    field="username" 
-                                    currentSortField={sortField} 
-                                    sortDirection={sortDirection} 
-                                    onSort={handleSort}
-                                >
-                                    Tên đăng nhập
-                                </SortableHeader>
-                                <SortableHeader 
-                                    field="dept" 
-                                    currentSortField={sortField} 
-                                    sortDirection={sortDirection} 
-                                    onSort={handleSort}
-                                >
-                                    Phòng ban
-                                </SortableHeader>
-                                <SortableHeader 
-                                    field="role" 
-                                    currentSortField={sortField} 
-                                    sortDirection={sortDirection} 
-                                    onSort={handleSort}
-                                >
-                                    Chức vụ
-                                </SortableHeader>
-                                <SortableHeader 
-                                    field="branch_code" 
-                                    currentSortField={sortField} 
-                                    sortDirection={sortDirection} 
-                                    onSort={handleSort}
-                                >
-                                    Chi nhánh
-                                </SortableHeader>
-                                <SortableHeader 
-                                    field="status" 
-                                    currentSortField={sortField} 
-                                    sortDirection={sortDirection} 
-                                    onSort={handleSort}
-                                >
-                                    Trạng thái
-                                </SortableHeader>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentUsers.map(user => (
-                                <tr key={user.employee_code}>
-                                    <td>{user.employee_code}</td>
-                                    <td>{user.fullname}</td>
-                                    <td>{user.username}</td>
-                                    <td>{
-                                        user.dept === 'KHCN' ? "Khách hàng cá nhân"
-                                            : user.dept === "KHDN" ? "Khách hàng doanh nghiệp"
-                                                : user.dept === "KH&QLRR" ? "Kế hoạch & quản lý rủi ro"
-                                                    : user.dept === "BGD" ? "Ban Giám đốc"
-                                                        : user.dept === "IT" ? "IT" : "Chưa xác định"
-
-                                    }</td>
-                                    <td>{
-                                        user.role === 'employee' ? "Cán bộ tín dụng"
-                                            : user.role === "manager" ? "Trưởng phòng"
-                                                : user.role === "deputy_manager" ? "Phó phòng"
-                                                    : user.role === "director" ? "Giám đốc"
-                                                        : user.role === "deputy_director" ? "Phó giám đốc"
-                                                            : user.role === "administrator" ? "Administrator" : "Chưa xác định"
-                                    }</td>
-                                    <td>{
-                                        user.branch_code === '6421' ? "Hội sở"
-                                            : user.branch_code === "6221" ? "Chi nhánh Nam Hoa"
-                                                : user.branch_code === "1605" ? "Chi nhánh 6"
-                                                    : "Chưa xác định"
-                                    }</td>
-                                    <td>
-                                        <span className={`${styles.statusBadge} ${styles[user.status]}`}>
-                                            {user.status === 'active' ? 'Hoạt động' : 'Vô hiệu hóa'}
-                                        </span>
-                                    </td>
-                                    <td className={styles.actionCell}>
-                                        <button className={styles.actionButton} onClick={() => openEditModal(user)}>Sửa</button>
-                                        <button className={`${styles.actionButton} ${styles.disable}`} onClick={() => handleDisableUser(user.employee_code)}>
-                                            {user.status === 'active' ? 'Vô hiệu hóa' : 'Kích hoạt'}
-                                        </button>
-                                        <button className={`${styles.actionButton} ${styles.delete}`} onClick={() => handleDeleteUser(user.employee_code)}>Xóa</button>
-                                    </td>
+                <div className={styles.tableWrapper}>
+                    <div className={styles.tableContainer}>
+                        <table className={styles.dataTable}>
+                            <thead>
+                                <tr>
+                                    <SortableHeader 
+                                        field="employee_code" 
+                                        currentSortField={sortField} 
+                                        sortDirection={sortDirection} 
+                                        onSort={handleSort}
+                                    >
+                                        Mã Nhân viên
+                                    </SortableHeader>
+                                    <SortableHeader 
+                                        field="fullname" 
+                                        currentSortField={sortField} 
+                                        sortDirection={sortDirection} 
+                                        onSort={handleSort}
+                                    >
+                                        Họ và Tên
+                                    </SortableHeader>
+                                    <SortableHeader 
+                                        field="username" 
+                                        currentSortField={sortField} 
+                                        sortDirection={sortDirection} 
+                                        onSort={handleSort}
+                                    >
+                                        Tên đăng nhập
+                                    </SortableHeader>
+                                    <SortableHeader 
+                                        field="dept" 
+                                        currentSortField={sortField} 
+                                        sortDirection={sortDirection} 
+                                        onSort={handleSort}
+                                    >
+                                        Phòng ban
+                                    </SortableHeader>
+                                    <SortableHeader 
+                                        field="role" 
+                                        currentSortField={sortField} 
+                                        sortDirection={sortDirection} 
+                                        onSort={handleSort}
+                                    >
+                                        Chức vụ
+                                    </SortableHeader>
+                                    <SortableHeader 
+                                        field="branch_code" 
+                                        currentSortField={sortField} 
+                                        sortDirection={sortDirection} 
+                                        onSort={handleSort}
+                                    >
+                                        Chi nhánh
+                                    </SortableHeader>
+                                    <SortableHeader 
+                                        field="status" 
+                                        currentSortField={sortField} 
+                                        sortDirection={sortDirection} 
+                                        onSort={handleSort}
+                                    >
+                                        Trạng thái
+                                    </SortableHeader>
+                                    <th>Hành động</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div className={styles.paginationContainer}>
-                <div className={styles.rowsPerPageSelector}>
-                    <span>Hiển thị:</span>
-                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        <option value={5}>5 dòng</option>
-                        <option value={10}>10 dòng</option>
-                        <option value={15}>15 dòng</option>
-                    </select>
-                </div>
-                <div className={styles.pageInfo}>
-                    Hiển thị {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredUsers.length)} trên tổng số {filteredUsers.length} người dùng
-                </div>
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                    />
+                            </thead>
+                            <tbody>
+                                {currentUsers.map(user => (
+                                    <tr key={user.employee_code}>
+                                        <td>{user.employee_code}</td>
+                                        <td>{user.fullname}</td>
+                                        <td>{user.username}</td>
+                                        <td>{
+                                            user.dept === 'KHCN' ? "Khách hàng cá nhân"
+                                                : user.dept === "KHDN" ? "Khách hàng doanh nghiệp"
+                                                    : user.dept === "KH&QLRR" ? "Kế hoạch & quản lý rủi ro"
+                                                        : user.dept === "BGĐ" ? "Ban Giám đốc"
+                                                            : user.dept === "IT" ? "IT" : "Chưa xác định"
+    
+                                        }</td>
+                                        <td>{
+                                            user.role === 'employee' ? "Cán bộ tín dụng"
+                                                : user.role === "manager" ? "Trưởng phòng"
+                                                    : user.role === "deputy_manager" ? "Phó phòng"
+                                                        : user.role === "director" ? "Giám đốc"
+                                                            : user.role === "deputy_director" ? "Phó giám đốc"
+                                                                : user.role === "administrator" ? "Administrator" : "Chưa xác định"
+                                        }</td>
+                                        <td>{
+                                            user.branch_code === '6421' ? "Hội sở"
+                                                : user.branch_code === "6221" ? "Chi nhánh Nam Hoa"
+                                                    : user.branch_code === "1605" ? "Chi nhánh 6"
+                                                        : "Chưa xác định"
+                                        }</td>
+                                        <td>
+                                            <span className={`${styles.statusBadge} ${styles[user.status]}`}>
+                                                {user.status === 'active' ? 'Hoạt động' : 'Vô hiệu hóa'}
+                                            </span>
+                                        </td>
+                                        <td className={styles.actionCell}>
+                                            <button className={styles.actionButton} onClick={() => openEditModal(user)}>Sửa</button>
+                                            <button className={`${styles.actionButton} ${styles.disable}`} onClick={() => handleDisableUser(user.employee_code)}>
+                                                {user.status === 'active' ? 'Vô hiệu hóa' : 'Kích hoạt'}
+                                            </button>
+                                            <button className={`${styles.actionButton} ${styles.delete}`} onClick={() => handleDeleteUser(user.employee_code)}>Xóa</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div className={styles.paginationContainer}>
+                        <div className={styles.rowsPerPageSelector}>
+                            <span>Hiển thị:</span>
+                            <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                                <option value={5}>5 dòng</option>
+                                <option value={10}>10 dòng</option>
+                                <option value={15}>15 dòng</option>
+                            </select>
+                        </div>
+                        <div className={styles.pageInfo}>
+                            Hiển thị {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredUsers.length)} trên tổng số {filteredUsers.length} người dùng
+                        </div>
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                        />
+                    </div>
                 </div>
             </div>
             

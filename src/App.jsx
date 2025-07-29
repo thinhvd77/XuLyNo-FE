@@ -4,13 +4,18 @@ import Login from "./components/Login/Login";
 import Layout from "./components/Layout/Layout";
 import AdminLayout from "./components/AdminLayout/AdminLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import DirectorDashboard from "./pages/DirectorDashboard/DirectorDashboard";
+import ManagerDashboard from "./pages/ManagerDashboard/ManagerDashboard";
 import "./index.css"; // File CSS toàn cục
 import UserLayout from "./components/UserLayout/UserLayout"; // Import layout mới
+import ManagerLayout from "./components/ManagerLayout/ManagerLayout"; // Import layout dành cho Manager
 import MyCases from "./pages/MyCases/MyCases"; // Import trang mới
 import ImportPage from "./pages/Import/Import";
-import UserManagement from "./pages/UserManagement/UserManagement"; // Import trang quản lý người dù  ng
+import UserManagement from "./pages/UserManagement/UserManagement"; // Import trang quản lý người dùng
 import CaseDetail from "./pages/CaseDetail/CaseDetail";
 import AuthGuard from "./components/AuthGuard/AuthGuard";
+import DirectorLayout from "./components/DirectorLayout/DirectorLayout"; // Import layout dành cho Ban Giám Đốc
+
 
 function App() {
     return (
@@ -42,14 +47,39 @@ function App() {
                         </AuthGuard>
                     }
                 />
+
+                {/* Route cho Director Dashboard - dành cho Ban Giám Đốc */}
+                <Route
+                    path="/director-dashboard"
+                    element={
+                        <AuthGuard>
+                            <DirectorLayout>
+                                <DirectorDashboard />
+                            </DirectorLayout>
+                        </AuthGuard>
+                    }
+                />
+
+                {/* Route cho Manager Dashboard - dành cho Manager/Deputy Manager */}
+                <Route
+                    path="/manager-dashboard"
+                    element={
+                        <AuthGuard>
+                            <ManagerLayout>
+                                <ManagerDashboard />
+                            </ManagerLayout>
+                        </AuthGuard>
+                    }
+                />
+
                 {/* User Routes - yêu cầu xác thực */}
                 <Route
                     path="/my-cases"
                     element={
                         <AuthGuard>
-                            <UserLayout>
+                            <ManagerLayout>
                                 <MyCases />
-                            </UserLayout>
+                            </ManagerLayout>
                         </AuthGuard>
                     }
                 />
