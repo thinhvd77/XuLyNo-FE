@@ -72,6 +72,7 @@ const AddUserModal = ({ isOpen, onClose, onSave }) => {
                                 <option className={branch_code === '6421'? "" : styles.display_option} value="KHCN">Khách hàng cá nhân</option>
                                 <option className={branch_code === '6421'? "" : styles.display_option} value="KHDN">Khách hàng doanh nghiệp</option>
                                 <option className={branch_code !== '6421'? "" : styles.display_option} value="KH">Khách hàng</option>
+                                <option className={branch_code === '6421'? "" : styles.display_option} value="PGD">PGD Bình Tây</option>
                                 <option className={branch_code === '6421'? "" : styles.display_option} value="KH&QLRR">Kế hoạch & quản lý rủi ro</option>
                                 <option value="BGĐ">Ban Giám đốc</option>
                                 <option className={branch_code === '6421'? "" : styles.display_option} value="IT">IT</option>
@@ -168,6 +169,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                                 <option className={branch_code === '6421'? "" : styles.display_option} value="KHCN">Khách hàng cá nhân</option>
                                 <option className={branch_code === '6421'? "" : styles.display_option} value="KHDN">Khách hàng doanh nghiệp</option>
                                 <option className={branch_code !== '6421'? "" : styles.display_option} value="KH">Khách hàng</option>
+                                <option className={branch_code === '6421'? "" : styles.display_option} value="PGD">PGD Bình Tây</option>
                                 <option className={branch_code === '6421'? "" : styles.display_option} value="KH&QLRR">Kế hoạch & quản lý rủi ro</option>
                                 <option value="BGĐ">Ban Giám đốc</option>
                                 <option className={branch_code === '6421'? "" : styles.display_option} value="IT">IT</option>
@@ -368,7 +370,8 @@ function UserManagement() {
                     'KH': 'Khách hàng',
                     'KH&QLRR': 'Kế hoạch & quản lý rủi ro',
                     'BGĐ': 'Ban Giám đốc',
-                    'IT': 'IT'
+                    'IT': 'IT',
+                    'PGD': 'Phòng Giao dịch Bình Tây'
                 };
                 aVal = deptMap[aVal] || 'Chưa xác định';
                 bVal = deptMap[bVal] || 'Chưa xác định';
@@ -752,9 +755,10 @@ function UserManagement() {
                                         user.dept === 'KHCN' ? "Khách hàng cá nhân"
                                             : user.dept === "KHDN" ? "Khách hàng doanh nghiệp"
                                                 : user.dept === "KH" ? "Khách hàng"
-                                                    : user.dept === "KH&QLRR" ? "Kế hoạch & quản lý rủi ro"
-                                                        : user.dept === "BGĐ" ? "Ban Giám đốc"
-                                                            : user.dept === "IT" ? "IT" : "Chưa xác định"
+                                                    : user.dept === "PGD" ? "PGD Bình Tây"
+                                                        : user.dept === "KH&QLRR" ? "Kế hoạch & quản lý rủi ro"
+                                                            : user.dept === "BGĐ" ? "Ban Giám đốc"
+                                                                : user.dept === "IT" ? "IT" : "Chưa xác định"
 
                                     }</td>
                                     <td>{
