@@ -451,11 +451,24 @@ function CaseDetail() {
         });
     };
 
-    if (isLoading) return <div>Đang tải dữ liệu hồ sơ...</div>;
-    if (!caseData) return <div>Không tìm thấy hồ sơ.</div>;
+    if (isLoading) return (
+        <div className={styles.caseDetailContainer}>
+            <div className={styles.loadingSpinner}>
+                <div>Đang tải dữ liệu hồ sơ...</div>
+            </div>
+        </div>
+    );
+    
+    if (!caseData) return (
+        <div className={styles.caseDetailContainer}>
+            <div className={styles.loadingSpinner}>
+                <div>Không tìm thấy hồ sơ.</div>
+            </div>
+        </div>
+    );
 
     return (
-        <>
+        <div className={styles.caseDetailContainer}>
             <div className={styles.pageHeader}>
                 <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
                     <ol>
@@ -650,7 +663,12 @@ function CaseDetail() {
                                     return currentFiles.length > 0 ? (
                                         <div className={styles.filesList}>
                                             {currentFiles.map(file => (
-                                                <div key={file.document_id} className={styles.fileItem}>
+                                                <div 
+                                                    key={file.document_id} 
+                                                    className={styles.fileItem}
+                                                    data-mime={file.mime_type}
+                                                    data-filename={file.original_filename}
+                                                >
                                                     <div className={styles.fileIcon}>
                                                         {getFileIcon(file.mime_type, file.original_filename)}
                                                     </div>
@@ -720,7 +738,7 @@ function CaseDetail() {
                 message={confirmModal.message}
                 type={confirmModal.type}
             />
-        </>
+        </div>
     );
 }
 

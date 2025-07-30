@@ -218,29 +218,39 @@ function MyCases() {
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
-                    <select
-                        className={styles.filterSelect}
-                        value={caseTypeFilter}
-                        onChange={e => setCaseTypeFilter(e.target.value)}
-                    >
-                        <option value="">Tất cả Loại</option>
-                        <option value="internal">Nội bảng</option>
-                        <option value="external">Ngoại bảng</option>
-                    </select>
-                    <select
-                        className={styles.filterSelect}
-                        value={statusFilter}
-                        onChange={e => setStatusFilter(e.target.value)}
-                    >
-                        <option value="">Tất cả Trạng thái</option>
-                        <option value="beingFollowedUp">Đang đôn đốc</option>
-                        <option value="beingSued">Đang khởi kiện</option>
-                        <option value="awaitingJudgmentEffect">Chờ hiệu lực án</option>
-                        <option value="beingExecuted">Đang thi hành án</option>
-                        <option value="proactivelySettled">Chủ động XLTS</option>
-                        <option value="debtSold">Bán nợ</option>
-                        <option value="amcHired">Thuê AMC XLN</option>
-                    </select>
+                    <div className={styles.customSelectWrapper}>
+                        <select
+                            className={styles.customSelect}
+                            value={caseTypeFilter}
+                            onChange={e => setCaseTypeFilter(e.target.value)}
+                        >
+                            <option value="">Tất cả Loại</option>
+                            <option value="internal">Nội bảng</option>
+                            <option value="external">Ngoại bảng</option>
+                        </select>
+                        <svg className={styles.selectIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
+                    <div className={styles.customSelectWrapper}>
+                        <select
+                            className={styles.customSelect}
+                            value={statusFilter}
+                            onChange={e => setStatusFilter(e.target.value)}
+                        >
+                            <option value="">Tất cả Trạng thái</option>
+                            <option value="beingFollowedUp">Đang đôn đốc</option>
+                            <option value="beingSued">Đang khởi kiện</option>
+                            <option value="awaitingJudgmentEffect">Chờ hiệu lực án</option>
+                            <option value="beingExecuted">Đang thi hành án</option>
+                            <option value="proactivelySettled">Chủ động XLTS</option>
+                            <option value="debtSold">Bán nợ</option>
+                            <option value="amcHired">Thuê AMC XLN</option>
+                        </select>
+                        <svg className={styles.selectIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
+                    </div>
                 </div>
 
                 <div className={styles.tableContainer}>
