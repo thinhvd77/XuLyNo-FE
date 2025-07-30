@@ -8,6 +8,27 @@ import { jwtDecode } from 'jwt-decode';
 import { API_ENDPOINTS } from '../../config/api';
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 
+// Helper function để chuyển đổi status code thành tên hiển thị
+const getStatusDisplayName = (status) => {
+    const statusMap = {
+        'beingFollowedUp': 'Đang đôn đốc',
+        'beingSued': 'Đang khởi kiện', 
+        'awaitingJudgmentEffect': 'Chờ hiệu lực án',
+        'beingExecuted': 'Đang thi hành án',
+        'proactivelySettled': 'Chủ động XLTS',
+        'debtSold': 'Bán nợ',
+        'amcHired': 'Thuê AMC XLN'
+    };
+    return statusMap[status] || status;
+};
+
+// Helper function để tạo message cập nhật trạng thái cho timeline
+const getStatusUpdateMessage = (oldStatus, newStatus, userFullname) => {
+    const oldStatusName = getStatusDisplayName(oldStatus);
+    const newStatusName = getStatusDisplayName(newStatus);
+    return `${userFullname} đã cập nhật trạng thái từ "${oldStatusName}" thành "${newStatusName}"`;
+};
+
 // Component Icon tái sử dụng
 const SvgIcon = ({ path, className = '' }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d={path} /></svg>
@@ -18,7 +39,7 @@ const PreviewModal = ({ isOpen, onClose, file }) => {
     const [previewUrl, setPreviewUrl] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [pdfViewMethod, setPdfViewMethod] = useState('iframe'); // 'iframe', 'google', 'download'
+    const [pdfViewMethod, setPdfViewMethod] = useState('iframe'); // 'iframe', 'google', 'object', 'embed'
 
     useEffect(() => {
         if (!isOpen || !file) return;
@@ -40,7 +61,26 @@ const PreviewModal = ({ isOpen, onClose, file }) => {
                 }
 
                 const blob = await response.blob();
+                
+                // Debug: Kiểm tra thông tin blob
+                console.log('Blob info:', {
+                    size: blob.size,
+                    type: blob.type,
+                    fileName: file.original_filename
+                });
+                
+                // Kiểm tra nếu blob rỗng
+                if (blob.size === 0) {
+                    throw new Error('File rỗng hoặc không hợp lệ');
+                }
+                
+                // Kiểm tra MIME type
+                // if (!blob.type.includes('pdf') && !blob.type.includes('application/octet-stream')) {
+                //     console.warn('Unexpected MIME type:', blob.type);
+                // }
+                
                 const url = window.URL.createObjectURL(blob);
+                console.log('Created blob URL:', url);
                 setPreviewUrl(url);
             } catch (err) {
                 setError(err.message);
@@ -63,17 +103,50 @@ const PreviewModal = ({ isOpen, onClose, file }) => {
     const renderPreview = () => {
         if (isLoading) {
             return (
-                <div style={{ textAlign: 'center', padding: '2rem' }}>
-                    <p>Đang tải...</p>
+                <div style={{ 
+                    textAlign: 'center', 
+                    padding: '3rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '1rem'
+                }}>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '3px solid #f3f3f3',
+                        borderTop: '3px solid #007bff',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                    }}></div>
+                    <p>Đang tải file...</p>
                 </div>
             );
         }
 
         if (error) {
             return (
-                <div style={{ textAlign: 'center', padding: '2rem' }}>
-                    <p>Không thể tải file để xem trước</p>
-                    <p>{error}</p>
+                <div style={{ 
+                    textAlign: 'center', 
+                    padding: '3rem',
+                    color: '#dc3545'
+                }}>
+                    <p style={{ fontSize: '18px', marginBottom: '10px' }}>❌ Không thể tải file để xem trước</p>
+                    <p style={{ fontSize: '14px', color: '#6c757d' }}>{error}</p>
+                    <button 
+                        onClick={() => window.location.reload()}
+                        style={{
+                            marginTop: '15px',
+                            padding: '8px 16px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Thử lại
+                    </button>
                 </div>
             );
         }
@@ -107,9 +180,12 @@ const PreviewModal = ({ isOpen, onClose, file }) => {
                         alignItems: 'center',
                         fontSize: '12px'
                     }}>
-                        <span>Chế độ xem:</span>
+                        <span>📄 Chế độ xem:</span>
                         <button 
-                            onClick={() => setPdfViewMethod('iframe')}
+                            onClick={() => {
+                                setPdfViewMethod('iframe');
+                                setError(null); // Clear any previous errors
+                            }}
                             style={{ 
                                 padding: '4px 8px',
                                 border: pdfViewMethod === 'iframe' ? '2px solid #007bff' : '1px solid #dee2e6',
@@ -122,7 +198,10 @@ const PreviewModal = ({ isOpen, onClose, file }) => {
                             Trình duyệt
                         </button>
                         <button 
-                            onClick={() => setPdfViewMethod('google')}
+                            onClick={() => {
+                                setPdfViewMethod('google');
+                                setError(null); // Clear any previous errors
+                            }}
                             style={{ 
                                 padding: '4px 8px',
                                 border: pdfViewMethod === 'google' ? '2px solid #007bff' : '1px solid #dee2e6',
@@ -136,10 +215,124 @@ const PreviewModal = ({ isOpen, onClose, file }) => {
                         </button>
                         <button 
                             onClick={() => {
-                                const a = document.createElement('a');
-                                a.href = previewUrl;
-                                a.target = '_blank';
-                                a.click();
+                                setPdfViewMethod('object');
+                                setError(null);
+                            }}
+                            style={{ 
+                                padding: '4px 8px',
+                                border: pdfViewMethod === 'object' ? '2px solid #007bff' : '1px solid #dee2e6',
+                                backgroundColor: pdfViewMethod === 'object' ? '#e3f2fd' : 'white',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '11px'
+                            }}
+                        >
+                            Object Tag
+                        </button>
+                        <button 
+                            onClick={async () => {
+                                try {
+                                    // Hiển thị loading
+                                    const loadingToast = toast.loading('Đang tải file...');
+                                    
+                                    // Tải file và tạo blob URL mới cho tab mới
+                                    const token = localStorage.getItem('token');
+                                    const response = await fetch(API_ENDPOINTS.CASES.DOCUMENT_PREVIEW(file.document_id), {
+                                        headers: {
+                                            'Authorization': `Bearer ${token}`
+                                        }
+                                    });
+                                    
+                                    if (!response.ok) {
+                                        throw new Error('Không thể tải file');
+                                    }
+                                    
+                                    const blob = await response.blob();
+                                    const url = window.URL.createObjectURL(blob);
+                                    
+                                    // Dismiss loading toast
+                                    toast.dismiss(loadingToast);
+                                    
+                                    // Mở tab mới với blob URL
+                                    const newWindow = window.open('', '_blank');
+                                    if (newWindow) {
+                                        newWindow.document.write(`
+                                            <html>
+                                                <head>
+                                                    <title>${file.original_filename}</title>
+                                                    <meta charset="UTF-8">
+                                                    <style>
+                                                        body { 
+                                                            margin: 0; 
+                                                            padding: 0; 
+                                                            font-family: Arial, sans-serif; 
+                                                        }
+                                                        .header {
+                                                            background: #f8f9fa;
+                                                            padding: 10px 20px;
+                                                            border-bottom: 1px solid #dee2e6;
+                                                            display: flex;
+                                                            justify-content: space-between;
+                                                            align-items: center;
+                                                        }
+                                                        .filename {
+                                                            font-weight: bold;
+                                                            font-size: 14px;
+                                                        }
+                                                        .download-btn {
+                                                            background: #007bff;
+                                                            color: white;
+                                                            border: none;
+                                                            padding: 6px 12px;
+                                                            border-radius: 4px;
+                                                            cursor: pointer;
+                                                            font-size: 12px;
+                                                        }
+                                                        .download-btn:hover {
+                                                            background: #0056b3;
+                                                        }
+                                                        iframe { 
+                                                            width: 100%; 
+                                                            height: calc(100vh - 60px); 
+                                                            border: none; 
+                                                        }
+                                                    </style>
+                                                </head>
+                                                <body>
+                                                    <div class="header">
+                                                        <span class="filename">${file.original_filename}</span>
+                                                        <button class="download-btn" onclick="downloadFile()">Tải xuống</button>
+                                                    </div>
+                                                    <iframe src="${url}" title="${file.original_filename}"></iframe>
+                                                    <script>
+                                                        function downloadFile() {
+                                                            const a = document.createElement('a');
+                                                            a.href = '${url}';
+                                                            a.download = '${file.original_filename}';
+                                                            document.body.appendChild(a);
+                                                            a.click();
+                                                            document.body.removeChild(a);
+                                                        }
+                                                        
+                                                        // Cleanup blob URL when window is closed
+                                                        window.addEventListener('beforeunload', function() {
+                                                            URL.revokeObjectURL('${url}');
+                                                        });
+                                                    </script>
+                                                </body>
+                                            </html>
+                                        `);
+                                        newWindow.document.close();
+                                        toast.success('Đã mở file trong tab mới');
+                                    } else {
+                                        // Cleanup nếu không thể mở tab mới
+                                        window.URL.revokeObjectURL(url);
+                                        toast.error('Trình duyệt chặn việc mở tab mới. Vui lòng cho phép popup.');
+                                    }
+                                } catch (error) {
+                                    toast.error('Không thể mở file trong tab mới');
+                                    console.error('Error opening file in new tab:', error);
+                                }
                             }}
                             style={{ 
                                 padding: '4px 8px',
@@ -148,23 +341,53 @@ const PreviewModal = ({ isOpen, onClose, file }) => {
                                 color: '#28a745',
                                 borderRadius: '4px',
                                 cursor: 'pointer',
-                                fontSize: '11px'
+                                fontSize: '11px',
+                                marginLeft: 'auto'
                             }}
                         >
-                            Mở tab mới
+                            🔗 Mở tab mới
                         </button>
                     </div>
                     
                     {/* PDF Content */}
                     <div style={{ flex: 1, position: 'relative' }}>
                         {pdfViewMethod === 'iframe' && (
-                            <iframe
-                                src={previewUrl}
-                                width="100%"
-                                height="100%"
-                                style={{ border: 'none' }}
-                                title={file.original_filename}
-                            />
+                            <>
+                                <iframe
+                                    src={`${previewUrl}#toolbar=1&navpanes=1&scrollbar=1&page=1&view=FitH`}
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 'none' }}
+                                    title={file.original_filename}
+                                    onLoad={() => {
+                                        console.log('PDF loaded successfully');
+                                    }}
+                                    onError={() => {
+                                        console.error('PDF iframe failed to load');
+                                        setError('Không thể hiển thị PDF trong trình duyệt. Hãy thử Google Viewer hoặc tải xuống file.');
+                                    }}
+                                />
+                                {/* Fallback: Nếu PDF không hiển thị, cung cấp link trực tiếp */}
+                                <div style={{
+                                    position: 'absolute',
+                                    bottom: '10px',
+                                    left: '10px',
+                                    background: 'rgba(0,0,0,0.7)',
+                                    color: 'white',
+                                    padding: '5px 10px',
+                                    borderRadius: '4px',
+                                    fontSize: '11px'
+                                }}>
+                                    <a 
+                                        href={previewUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        style={{ color: 'white', textDecoration: 'none' }}
+                                    >
+                                        📄 Mở PDF trong tab mới nếu không thấy
+                                    </a>
+                                </div>
+                            </>
                         )}
                         
                         {pdfViewMethod === 'google' && (
@@ -174,37 +397,130 @@ const PreviewModal = ({ isOpen, onClose, file }) => {
                                 height="100%"
                                 style={{ border: 'none' }}
                                 title={file.original_filename}
+                                onLoad={() => {
+                                    console.log('Google Viewer loaded');
+                                }}
                                 onError={() => {
+                                    console.error('Google Viewer failed to load');
                                     setError('Google Viewer không thể tải file. Vui lòng thử phương thức khác.');
                                 }}
                             />
                         )}
-                    </div>
-                    
-                    {error && pdfViewMethod === 'google' && (
-                        <div style={{ 
-                            textAlign: 'center', 
-                            padding: '20px',
-                            backgroundColor: '#f8d7da',
-                            color: '#721c24',
-                            border: '1px solid #f5c6cb'
-                        }}>
-                            <p>{error}</p>
-                            <button 
-                                onClick={() => setPdfViewMethod('iframe')}
-                                style={{ 
-                                    padding: '6px 12px',
-                                    backgroundColor: '#007bff',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
+                        
+                        {pdfViewMethod === 'object' && (
+                            <object
+                                data={previewUrl}
+                                type="application/pdf"
+                                width="100%"
+                                height="100%"
+                                style={{ border: 'none' }}
                             >
-                                Thử phương thức khác
-                            </button>
-                        </div>
-                    )}
+                                <p style={{ 
+                                    textAlign: 'center', 
+                                    padding: '20px',
+                                    color: '#666'
+                                }}>
+                                    Trình duyệt không hỗ trợ hiển thị PDF. 
+                                    <br/>
+                                    <a 
+                                        href={previewUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        style={{ 
+                                            color: '#007bff',
+                                            textDecoration: 'none',
+                                            padding: '8px 16px',
+                                            border: '1px solid #007bff',
+                                            borderRadius: '4px',
+                                            display: 'inline-block',
+                                            marginTop: '10px'
+                                        }}
+                                    >
+                                        Mở PDF trong tab mới
+                                    </a>
+                                </p>
+                            </object>
+                        )}
+                        
+                        {/* Fallback message khi có lỗi với phương thức hiện tại */}
+                        {error && (
+                            <div style={{ 
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                textAlign: 'center', 
+                                padding: '20px',
+                                backgroundColor: '#f8d7da',
+                                color: '#721c24',
+                                border: '1px solid #f5c6cb',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                zIndex: 10
+                            }}>
+                                <p style={{ margin: '0 0 15px 0', fontWeight: 'bold' }}>⚠️ {error}</p>
+                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                    {pdfViewMethod !== 'iframe' && (
+                                        <button 
+                                            onClick={() => {
+                                                setPdfViewMethod('iframe');
+                                                setError(null);
+                                            }}
+                                            style={{ 
+                                                padding: '6px 12px',
+                                                backgroundColor: '#007bff',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                fontSize: '12px'
+                                            }}
+                                        >
+                                            Thử Trình duyệt
+                                        </button>
+                                    )}
+                                    {pdfViewMethod !== 'google' && (
+                                        <button 
+                                            onClick={() => {
+                                                setPdfViewMethod('google');
+                                                setError(null);
+                                            }}
+                                            style={{ 
+                                                padding: '6px 12px',
+                                                backgroundColor: '#28a745',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                fontSize: '12px'
+                                            }}
+                                        >
+                                            Thử Google Viewer
+                                        </button>
+                                    )}
+                                    {pdfViewMethod !== 'object' && (
+                                        <button 
+                                            onClick={() => {
+                                                setPdfViewMethod('object');
+                                                setError(null);
+                                            }}
+                                            style={{ 
+                                                padding: '6px 12px',
+                                                backgroundColor: '#17a2b8',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                fontSize: '12px'
+                                            }}
+                                        >
+                                            Thử Object Tag
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             );
         } else if (mimeType.startsWith('video/')) {
@@ -301,33 +617,40 @@ const PreviewModal = ({ isOpen, onClose, file }) => {
                     {renderPreview()}
                 </div>
                 <div className={styles.modalFooter}>
-                    <p>Kích thước: {Math.round(file.file_size / 1024)} KB</p>
-                    <button 
-                        className={styles.downloadBtn}
-                        onClick={() => {
-                            const token = localStorage.getItem('token');
-                            const downloadUrl = API_ENDPOINTS.CASES.DOCUMENT_DOWNLOAD(file.document_id);
-                            fetch(downloadUrl, {
-                                headers: {
-                                    'Authorization': `Bearer ${token}`
-                                }
-                            })
-                            .then(response => response.blob())
-                            .then(blob => {
-                                const url = window.URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                // Đảm bảo tên file được decode đúng
-                                a.download = decodeURIComponent(file.original_filename || 'download');
-                                document.body.appendChild(a);
-                                a.click();
-                                window.URL.revokeObjectURL(url);
-                                document.body.removeChild(a);
-                            });
-                        }}
-                    >
-                        Tải xuống
-                    </button>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <div>
+                            <p>Kích thước: {Math.round(file.file_size / 1024)} KB</p>
+                            <p style={{ fontSize: '11px', color: '#6c757d', margin: 0 }}>
+                                MIME: {file.mime_type || 'N/A'}
+                            </p>
+                        </div>
+                        <button 
+                            className={styles.downloadBtn}
+                            onClick={() => {
+                                const token = localStorage.getItem('token');
+                                const downloadUrl = API_ENDPOINTS.CASES.DOCUMENT_DOWNLOAD(file.document_id);
+                                fetch(downloadUrl, {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    }
+                                })
+                                .then(response => response.blob())
+                                .then(blob => {
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    // Đảm bảo tên file được decode đúng
+                                    a.download = decodeURIComponent(file.original_filename || 'download');
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    window.URL.revokeObjectURL(url);
+                                    document.body.removeChild(a);
+                                });
+                            }}
+                        >
+                            Tải xuống
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -582,8 +905,12 @@ function CaseDetail() {
                     throw new Error('Không thể tải dữ liệu hồ sơ.');
                 }
 
-                const data = await response.json();
+                const {data} = await response.json();
+                // console.log(data);
+                
                 setCaseData(data);
+                // Set initial status for the case
+
                 setSelectedStatus(data.state); // Set initial status
 
                 const noteResponse = await fetch(API_ENDPOINTS.CASES.CASE_CONTENTS(caseId), {
@@ -686,6 +1013,10 @@ function CaseDetail() {
             return;
         }
 
+        // Lấy thông tin user từ token để ghi log
+        const userInfo = jwtDecode(token);
+        const oldStatus = caseData.state;
+        
         setIsUpdatingStatus(true);
 
         try {
@@ -709,19 +1040,34 @@ function CaseDetail() {
             // Update local case data
             setCaseData(prev => ({ ...prev, state: selectedStatus }));
             
-            // Refresh case notes to show the status update log
-            const noteResponse = await fetch(API_ENDPOINTS.CASES.CASE_CONTENTS(caseId), {
+            // // Tạo một log entry mới cho timeline với thông tin chi tiết về việc thay đổi trạng thái
+            // const statusUpdateMessage = getStatusUpdateMessage(oldStatus, selectedStatus, userInfo.fullname);
+            
+            // // Thêm log vào case timeline bằng cách gọi API thêm note
+            // const noteResponse = await fetch(API_ENDPOINTS.CASES.CASE_UPDATES(caseId), {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': `Bearer ${token}`
+            //     },
+            //     body: JSON.stringify({
+            //         content: statusUpdateMessage
+            //     })
+            // });
+
+            // Refresh case notes để hiển thị log mới
+            const refreshedNotesResponse = await fetch(API_ENDPOINTS.CASES.CASE_CONTENTS(caseId), {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
 
-            if (noteResponse.ok) {
-                const notes = await noteResponse.json();
+            if (refreshedNotesResponse.ok) {
+                const notes = await refreshedNotesResponse.json();
                 setCaseNote(notes);
             }
 
-            toast.success("Đã cập nhật trạng thái thành công!");
+            toast.success(`Đã cập nhật trạng thái thành "${getStatusDisplayName(selectedStatus)}"!`);
         } catch (error) {
             toast.error(`Lỗi: ${error.message}`);
             // Reset selected status on error
@@ -731,9 +1077,116 @@ function CaseDetail() {
         }
     };
 
-    const handlePreviewFile = (file) => {
-        setPreviewFile(file);
-        setIsPreviewOpen(true);
+    const handlePreviewFile = async (file) => {
+        // Nếu là file PDF, mở trong tab mới
+        if (file.mime_type && file.mime_type.includes('pdf')) {
+            try {
+                // Hiển thị loading toast
+                const loadingToast = toast.loading('Đang tải file PDF...');
+                
+                // Tải file và tạo blob URL cho tab mới
+                const token = localStorage.getItem('token');
+                const response = await fetch(API_ENDPOINTS.CASES.DOCUMENT_PREVIEW(file.document_id), {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Không thể tải file PDF');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                
+                // Dismiss loading toast
+                toast.dismiss(loadingToast);
+                
+                // Mở tab mới với blob URL
+                const newWindow = window.open('', '_blank');
+                if (newWindow) {
+                    newWindow.document.write(`
+                        <html>
+                            <head>
+                                <title>${file.original_filename}</title>
+                                <meta charset="UTF-8">
+                                <style>
+                                    body { 
+                                        margin: 0; 
+                                        padding: 0; 
+                                        font-family: Arial, sans-serif; 
+                                    }
+                                    .header {
+                                        background: #f8f9fa;
+                                        padding: 10px 20px;
+                                        border-bottom: 1px solid #dee2e6;
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+                                    }
+                                    .filename {
+                                        font-weight: bold;
+                                        font-size: 14px;
+                                    }
+                                    .download-btn {
+                                        background: #007bff;
+                                        color: white;
+                                        border: none;
+                                        padding: 6px 12px;
+                                        border-radius: 4px;
+                                        cursor: pointer;
+                                        font-size: 12px;
+                                    }
+                                    .download-btn:hover {
+                                        background: #0056b3;
+                                    }
+                                    iframe { 
+                                        width: 100%; 
+                                        height: calc(100vh - 60px); 
+                                        border: none; 
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="header">
+                                    <span class="filename">${file.original_filename}</span>
+                                    <button class="download-btn" onclick="downloadFile()">Tải xuống</button>
+                                </div>
+                                <iframe src="${url}#toolbar=1&navpanes=1&scrollbar=1&page=1&view=FitH" title="${file.original_filename}"></iframe>
+                                <script>
+                                    function downloadFile() {
+                                        const a = document.createElement('a');
+                                        a.href = '${url}';
+                                        a.download = '${file.original_filename}';
+                                        document.body.appendChild(a);
+                                        a.click();
+                                        document.body.removeChild(a);
+                                    }
+                                    
+                                    // Cleanup blob URL when window is closed
+                                    window.addEventListener('beforeunload', function() {
+                                        URL.revokeObjectURL('${url}');
+                                    });
+                                </script>
+                            </body>
+                        </html>
+                    `);
+                    newWindow.document.close();
+                    toast.success('Đã mở file PDF trong tab mới');
+                } else {
+                    // Cleanup nếu không thể mở tab mới
+                    window.URL.revokeObjectURL(url);
+                    toast.error('Trình duyệt chặn việc mở tab mới. Vui lòng cho phép popup.');
+                }
+            } catch (error) {
+                toast.error('Không thể mở file PDF');
+                console.error('Error opening PDF file:', error);
+            }
+        } else {
+            // Các file khác (ảnh, video, v.v.) hiển thị trong modal
+            setPreviewFile(file);
+            setIsPreviewOpen(true);
+        }
     };
 
     const closePreview = () => {
@@ -945,7 +1398,7 @@ function CaseDetail() {
                         <h3>Thông tin Khoản nợ</h3>
                         <dl className={styles.infoGrid}>
                             <dt>Dư nợ hiện tại:</dt><dd><strong>{parseFloat(caseData.outstanding_debt).toLocaleString('vi-VN')} VND</strong></dd>
-                            <dt>Trạng thái:</dt><dd><strong style={{color: 'var(--primary-color)'}}>{caseData.state}</strong></dd>
+                            <dt>Trạng thái:</dt><dd><strong style={{color: 'var(--primary-color)'}}>{getStatusDisplayName(caseData.state)}</strong></dd>
                         </dl>
                     </div>
                     <div className={styles.card}>
@@ -958,13 +1411,13 @@ function CaseDetail() {
                                 value={selectedStatus}
                                 onChange={(e) => setSelectedStatus(e.target.value)}
                             >
-                                <option value="Mới">Mới</option>
-                                <option value="Đang thu hồi nợ">Đang thu hồi nợ</option>
-                                <option value="Đang khởi kiện">Đang khởi kiện</option>
-                                <option value="Đang chờ xét xử">Đang chờ xét xử</option>
-                                <option value="Đang chờ thi hành án">Đang chờ thi hành án</option>
-                                <option value="Đang thi hành án">Đang thi hành án</option>
-                                <option value="Hoàn tất">Hoàn tất</option>
+                                <option value="beingFollowedUp">Đang đôn đốc</option>
+                                <option value="beingSued">Đang khởi kiện</option>
+                                <option value="awaitingJudgmentEffect">Chờ hiệu lực án</option>
+                                <option value="beingExecuted">Đang thi hành án</option>
+                                <option value="proactivelySettled">Chủ động XLTS</option>
+                                <option value="debtSold">Bán nợ</option>
+                                <option value="amcHired">Thuê AMC XLN</option>
                             </select>
                         </div>
                         <button 
@@ -1001,28 +1454,47 @@ function CaseDetail() {
                             </div>
                             <hr className={styles.divider} />
                             <div className={styles.timeline}>
-                                {caseNote.data.map(entry => (
-                                    <div key={entry.update_id} className={styles.timelineItem}>
-                                        <div className={styles.timelineIcon}>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 24 24"
-                                                fill="currentColor"
-                                            >
-                                                <path
-                                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
-                                                />
-                                                <path
-                                                    d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"
-                                                />
-                                            </svg>
+                                {caseNote.data.map(entry => {
+                                    // Lấy tên người dùng từ entry hoặc token hiện tại
+                                    const getCurrentUserName = () => {
+                                        try {
+                                            const token = localStorage.getItem('token');
+                                            if (token) {
+                                                const decoded = jwtDecode(token);
+                                                return decoded.fullname || 'Người dùng';
+                                            }
+                                        } catch (error) {
+                                            console.error('Error decoding token:', error);
+                                        }
+                                        return 'Người dùng';
+                                    };
+
+                                    return (
+                                        <div key={entry.update_id} className={styles.timelineItem}>
+                                            <div className={styles.timelineIcon}>
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 24 24"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
+                                                    />
+                                                    <path
+                                                        d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div className={styles.meta}>
+                                                    <strong>{entry.user_fullname || getCurrentUserName()}</strong> - 
+                                                    <span> {new Date(entry.created_date).toLocaleTimeString('vi-VN')}, {new Date(entry.created_date).toLocaleDateString('vi-VN')}</span>
+                                                </div>
+                                                <p>{entry.update_content}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <div className={styles.meta}><strong>{jwtDecode(localStorage.getItem('token')).fullname}</strong> - <span>{new Date(entry.created_date).toLocaleTimeString('vi-VN')}, {new Date(entry.created_date).toLocaleDateString('vi-VN')}</span></div>
-                                            <p>{entry.update_content}</p>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
@@ -1112,7 +1584,7 @@ function CaseDetail() {
                                                                 className={styles.previewBtn}
                                                                 onClick={() => handlePreviewFile(file)}
                                                             >
-                                                                Xem trước
+                                                                {file.mime_type && file.mime_type.includes('pdf') ? '🔗 Mở tab mới' : 'Xem trước'}
                                                             </button>
                                                         )}
                                                         <button 
@@ -1141,7 +1613,7 @@ function CaseDetail() {
                 </div>
             </div>
             
-            {/* Preview Modal */}
+            {/* Preview Modal cho các file không phải PDF */}
             <PreviewModal 
                 isOpen={isPreviewOpen} 
                 onClose={closePreview} 

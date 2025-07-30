@@ -66,7 +66,6 @@ const ChangePasswordModal = ({ isOpen, onClose, onSave, user }) => {
 function UserLayout({ children }) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isMenuOpen, setMenuOpen] = useState(false);
-    const [isHidden, setIsHidden] = useState(false);
 
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
@@ -110,7 +109,6 @@ function UserLayout({ children }) {
                             : 'Người dùng',
                 employee_code: decodedUser.sub
             });
-            if(decodedUser.role === 'manager'){setIsHidden(true)}
         }
     }, []);
 
@@ -156,7 +154,7 @@ function UserLayout({ children }) {
         setCurrentUser(user);
         setIsChangePasswordModalOpen(true);
     };
-
+    
     return (
         <>
             <ChangePasswordModal 
@@ -179,10 +177,15 @@ function UserLayout({ children }) {
                                     <SvgIcon path="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z" />
                                     <span>Hồ sơ của tôi</span>
                                 </NavLink>
-                                <NavLink to="/manager" className={({ isActive }) => isActive ? styles.active : ''}  style={{display: isHidden ? 'block' : 'none'}}>
-                                    <SvgIcon path="M3 14h4v-4H3zm0 5h4v-4H3zM3 9h4V5H3zm5 5h13v-4H8zm0 5h13v-4H8zM8 5v4h13V5z" />
-                                    <span>Danh sách nhân viên</span>
-                                </NavLink>
+                                {/* Department Dashboard - chỉ hiển thị cho manager/deputy_manager */}
+                                {user && (user.role === 'manager' || user.role === 'deputy_manager') && (
+                                    <li>
+                                        <NavLink to="/manager-dashboard" className={({ isActive }) => isActive ? styles.active : ''}>
+                                            <SvgIcon path="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+                                            <span>Hồ sơ của phòng</span>
+                                        </NavLink>
+                                    </li>
+                                )}
                             </li>
                         </ul>
                     </nav>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
-import logo from '../../assets/Logo.png';
+import logo from '../../assets/logo.jpg';
 import { jwtDecode } from "jwt-decode";
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../../config/api';
@@ -57,6 +57,12 @@ function Login() {
             }
             if (decoded.role === 'administrator') {
                 navigate('/admin', { replace: true });
+            }
+            if (decoded.role === 'deputy_director' || decoded.role === 'director' || decoded.role === 'BGĐ') {
+                navigate('/director-dashboard', { replace: true });
+            }
+            if (decoded.role === 'manager' || decoded.role === 'deputy_manager') {
+                navigate('/manager-dashboard', { replace: true });
             }
 
         } catch (err) {

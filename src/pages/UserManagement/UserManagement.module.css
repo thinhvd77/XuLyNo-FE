@@ -38,6 +38,9 @@
     border-radius: 8px;
     box-shadow: var(--card-shadow);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 150px); /* Đặt chiều cao cố định để pagination luôn ở dưới */
 }
 
 /* Filter bar */
@@ -82,16 +85,18 @@
     flex-grow: 1;
     overflow: hidden;
     position: relative;
-    display: flex; /* Thêm flex để container con có thể co giãn */
+    display: flex;
+    flex-direction: column; /* Để table container và pagination container xếp dọc */
 }
 
 .tableContainer {
     width: 100%;
+    flex-grow: 1; /* Cho phép table container mở rộng */
     overflow-y: auto;
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    overflow: hidden;
+    border-radius: 8px 8px 0 0; /* Chỉ bo góc trên */
+    min-height: 0; /* Cho phép flex item co lại nhỏ hơn content */
 }
 
 .dataTable {
@@ -340,6 +345,7 @@
     border-top: none;
     border-radius: 0 0 8px 8px; /* Bo góc dưới */
     flex-shrink: 0;
+    margin-top: auto; /* Đẩy pagination xuống dưới cùng */
 }
 
 .pageInfo {

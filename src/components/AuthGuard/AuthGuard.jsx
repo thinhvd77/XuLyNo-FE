@@ -63,6 +63,12 @@ const AuthGuard = ({ children, redirectTo = '/login', requireAuth = true }) => {
         if (userRole === 'administrator') {
             return <Navigate to="/admin" replace />;
         }
+        if (userRole === 'deputy_director' || userRole === 'director' || userRole === 'BGĐ') {
+            return <Navigate to="/director-dashboard" replace />;
+        }
+        if (userRole === 'manager' || userRole === 'deputy_manager') {
+            return <Navigate to="/manager-dashboard" replace />;
+        }
         // Mặc định về dashboard
         return <Navigate to="/dashboard" replace />;
     }

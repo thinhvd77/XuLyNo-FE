@@ -82,8 +82,9 @@
 
 .mainContent {
     padding: 24px;
+    padding-bottom: 0px;
     background-color: #f8f9fa;
-    min-height: calc(100vh - 64px);
+    min-height: calc(100vh - 100px);
 }
 
 /* Page Header Styles - đồng bộ với Dashboard */

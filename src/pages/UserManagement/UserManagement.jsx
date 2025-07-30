@@ -177,7 +177,10 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                             <label htmlFor="edit-role">Chức vụ</label>
                             <select id="edit-role" value={role} onChange={e => setRole(e.target.value)}>
                                 <option value="employee">Cán bộ tín dụng</option>
+                                <option value="deputy_manager">Phó phòng</option>
                                 <option value="manager">Trưởng phòng</option>
+                                <option value="deputy_director">Phó giám đốc</option>
+                                <option value="director">Giám đốc</option>
                                 <option value="administrator">Administrator</option>
                             </select>
                         </div>
@@ -196,27 +199,27 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
 const SortableHeader = ({ field, currentSortField, sortDirection, onSort, children }) => {
     const getSortIcon = () => {
         if (currentSortField !== field) {
-            // Icon mặc định khi chưa sort - Both arrows
+            // Icon mặc định khi chưa sort - Both arrows (outlined)
             return (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7 10l5-5 5 5z" opacity="0.3"/>
-                    <path d="M7 14l5 5 5-5z" opacity="0.3"/>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 10L12 6L16 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8 14L12 18L16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
             );
         }
         
         if (sortDirection === 'asc') {
-            // Icon sort tăng dần - Up arrow
+            // Icon sort tăng dần - Up arrow (outlined)
             return (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7 14l5-5 5 5z"/>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 14L12 10L16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
             );
         } else {
-            // Icon sort giảm dần - Down arrow
+            // Icon sort giảm dần - Down arrow (outlined)
             return (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7 10l5 5 5-5z"/>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 10L12 14L16 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
             );
         }
@@ -366,7 +369,7 @@ function UserManagement() {
                     'KHDN': 'Khách hàng doanh nghiệp',
                     'KH': 'Khách hàng',
                     'KH&QLRR': 'Kế hoạch & quản lý rủi ro',
-                    'BGD': 'Ban Giám đốc',
+                    'BGĐ': 'Ban Giám đốc',
                     'IT': 'IT'
                 };
                 aVal = deptMap[aVal] || 'Chưa xác định';
@@ -483,57 +486,77 @@ function UserManagement() {
     };
 
     const handleEditUser = async (userId, updatedData) => {
-        // Mô phỏng gọi API và cập nhật lại state
+        const token = localStorage.getItem('token');
+        
         try {
             const response = await fetch(API_ENDPOINTS.USERS.UPDATE(userId), {
-                method: 'PATCH',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(updatedData)
             });
 
             const result = await response.json();
 
-            if (!response.ok) {
-                // console.error();
-                throw new Error(result.message || 'Không thể cập nhật người dùng.');
+            if (response.ok && result.success) {
+                // Cập nhật user trong state
+                setUsers(users.map(u => 
+                    u.employee_code === userId ? { ...u, ...result.user } : u
+                ));
+                setIsEditModalOpen(false);
+                toast.success('Cập nhật người dùng thành công!');
+            } else {
+                toast.error(result.message || 'Cập nhật thất bại!');
             }
-
-            const updatedResponse = await fetch(API_ENDPOINTS.USERS.LIST, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            const Data = await updatedResponse.json();
-            setUsers(Data.users);
-
-            setIsEditModalOpen(false); // Đóng modal sau khi lưu thành công
-            toast.success('Cập nhật người dùng thành công!');
-
         } catch (error) {
-            toast.error(`Đã xảy ra lỗi: ${error.message}`);
+            console.error('Error updating user:', error);
+            toast.error('Đã có lỗi xảy ra khi cập nhật!');
         }
-
-        // toast.promise(
-        //     new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
-        //         setUsers(users.map(u => u.id === userId ? { ...u, ...updatedData } : u));
-        //         setIsEditModalOpen(false);
-        //     }),
-        //     {
-        //         loading: 'Đang cập nhật...',
-        //         success: 'Cập nhật người dùng thành công!',
-        //         error: 'Cập nhật thất bại!',
-        //     }
-        // );
     };
 
-    const handleDisableUser = (userId) => {
-        // Mô phỏng gọi API để thay đổi trạng thái
-        setUsers(users.map(user =>
-            user.employee_code === userId ? { ...user, status: user.status === 'active' ? 'disabled' : 'active' } : user
-        ));
+    const handleDisableUser = async (userId) => {
+        const currentUser = users.find(user => user.employee_code === userId);
+        const action = currentUser?.status === 'active' ? 'vô hiệu hóa' : 'kích hoạt';
+        const actionText = currentUser?.status === 'active' ? 'vô hiệu hóa' : 'kích hoạt';
+        
+        setConfirmModal({
+            isOpen: true,
+            title: `${action.charAt(0).toUpperCase() + action.slice(1)} người dùng`,
+            message: `Bạn có chắc chắn muốn ${action} người dùng "${currentUser?.fullname || userId}"?`,
+            type: currentUser?.status === 'active' ? 'warning' : 'info',
+            onConfirm: async () => {
+                const token = localStorage.getItem('token');
+                
+                try {
+                    const response = await fetch(API_ENDPOINTS.USERS.TOGGLE_STATUS(userId), {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        // Cập nhật user trong state
+                        setUsers(users.map(user =>
+                            user.employee_code === userId ? { ...user, ...result.user } : user
+                        ));
+                        toast.success(result.message);
+                    } else {
+                        toast.error(result.message || `Không thể ${actionText} người dùng!`);
+                    }
+                } catch (error) {
+                    console.error('Error toggling user status:', error);
+                    toast.error(`Đã có lỗi xảy ra khi ${actionText} người dùng!`);
+                }
+                
+                setConfirmModal({ isOpen: false });
+            },
+            onCancel: () => setConfirmModal({ isOpen: false })
+        });
     };
 
     const handleDeleteUser = async (userId) => {
@@ -648,17 +671,16 @@ function UserManagement() {
                 </button>
             </div>
 
-            <div className={styles.card}>
-                <div className={styles.filterBar}>
-                    <input
-                        type="text"
-                        className={styles.searchInput}
-                        placeholder="Tìm theo Mã NV, Tên, Tên đăng nhập..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
-                
+            <div className={styles.filterBar}>
+                <input
+                    type="text"
+                    className={styles.searchInput}
+                    placeholder="Tìm theo Mã NV, Tên, Tên đăng nhập..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+            <div className={styles.tableWrapper}>  
                 <div className={styles.tableContainer}>
                     <table className={styles.dataTable}>
                         <thead>
@@ -769,23 +791,23 @@ function UserManagement() {
                         </tbody>
                     </table>
                 </div>
-                
+                    
                 <div className={styles.paginationContainer}>
-                <div className={styles.rowsPerPageSelector}>
-                    <span>Hiển thị:</span>
-                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        <option value={5}>5 dòng</option>
-                        <option value={10}>10 dòng</option>
-                        <option value={15}>15 dòng</option>
-                    </select>
-                </div>
-                <div className={styles.pageInfo}>
-                    Hiển thị {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredUsers.length)} trên tổng số {filteredUsers.length} người dùng
-                </div>
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
+                    <div className={styles.rowsPerPageSelector}>
+                        <span>Hiển thị:</span>
+                        <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                            <option value={5}>5 dòng</option>
+                            <option value={10}>10 dòng</option>
+                            <option value={15}>15 dòng</option>
+                        </select>
+                    </div>
+                    <div className={styles.pageInfo}>
+                        Hiển thị {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredUsers.length)} trên tổng số {filteredUsers.length} người dùng
+                    </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
                     />
                 </div>
             </div>

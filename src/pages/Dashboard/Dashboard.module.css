@@ -31,6 +31,43 @@
     margin-bottom: 24px;
 }
 
+/* Grid layout cho thống kê nội bảng/ngoại bảng */
+.debtTypeGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.debtTypeStats {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+}
+
+.debtTypeStat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.debtTypeStat .statLabel {
+    color: var(--text-light);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.debtTypeStat .statValue {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
 .statCard {
     background-color: var(--card-bg);
     padding: 20px;
@@ -85,11 +122,13 @@
 .cardHeader {
     font-size: 16px;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
+    padding: 20px 24px 0 24px;
 }
 
 .chartContainer {
     height: 300px;
+    padding: 0 24px 24px 24px;
 }
 
 .taskList {
@@ -111,6 +150,10 @@
 
 @media (max-width: 992px) {
     .contentGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .debtTypeGrid {
         grid-template-columns: 1fr;
     }
 }

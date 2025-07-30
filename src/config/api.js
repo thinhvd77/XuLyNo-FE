@@ -1,10 +1,8 @@
 // API Configuration
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? 'http://your-production-server.com'
-    : 'http://localhost:3000'; 
-    // : 'http://192.168.1.16:3000';
-    
-
+// const API_BASE_URL = process.env.NODE_ENV === 'production' 
+//     ? 'http://your-production-server.com' 
+//     : 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:3000'
 export const API_ENDPOINTS = {
     AUTH: {
         LOGIN: `${API_BASE_URL}/api/auth/login`,
@@ -12,12 +10,15 @@ export const API_ENDPOINTS = {
     USERS: {
         LIST: `${API_BASE_URL}/api/users`,
         CREATE: `${API_BASE_URL}/api/users/create`,
-        DELETE: (id) => `${API_BASE_URL}/api/users/${id}`,
         UPDATE: (id) => `${API_BASE_URL}/api/users/${id}`,
+        TOGGLE_STATUS: (id) => `${API_BASE_URL}/api/users/${id}/status`,
+        DELETE: (id) => `${API_BASE_URL}/api/users/${id}`,
         CHANGEPASSWORD: (id) => `${API_BASE_URL}/api/users/${id}/change-password`
     },
     CASES: {
         MY_CASES: `${API_BASE_URL}/api/cases/my-cases`,
+        ALL_CASES: `${API_BASE_URL}/api/cases/all-cases`,
+        DEPARTMENT_CASES: `${API_BASE_URL}/api/cases/department-cases`,
         IMPORT_INTERNAL: `${API_BASE_URL}/api/cases/import-internal`,
         IMPORT_EXTERNAL: `${API_BASE_URL}/api/cases/import-external`,
         DOCUMENTS: (caseId) => `${API_BASE_URL}/api/cases/${caseId}/documents`,
@@ -31,6 +32,7 @@ export const API_ENDPOINTS = {
     },
     DASHBOARD: {
         STATS: `${API_BASE_URL}/api/dashboard/stats`,
+        DIRECTOR_STATS: `${API_BASE_URL}/api/dashboard/director-stats`,
     }
 };
 
