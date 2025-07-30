@@ -52,7 +52,7 @@ function Login() {
             if (decoded.dept === 'KH&QLRR') {
                 navigate('/dashboard', { replace: true });
             }
-            if (decoded.role === 'employee' || decoded.role === 'manager') {
+            if (decoded.role === 'employee' || (decoded.role === 'manager' && decoded.dept !== 'KH&QLRR')) {
                 navigate('/my-cases', { replace: true });
             }
             if (decoded.role === 'administrator') {

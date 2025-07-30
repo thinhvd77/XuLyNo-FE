@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
         CREATE: `${API_BASE_URL}/api/users/create`,
         DELETE: (id) => `${API_BASE_URL}/api/users/${id}`,
         UPDATE: (id) => `${API_BASE_URL}/api/users/${id}`,
+        CHANGEPASSWORD: (id) => `${API_BASE_URL}/api/users/${id}/change-password`
     },
     CASES: {
         MY_CASES: `${API_BASE_URL}/api/cases/my-cases`,

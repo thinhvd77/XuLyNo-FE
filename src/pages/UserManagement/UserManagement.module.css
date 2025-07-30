@@ -213,6 +213,11 @@
     border-color: #f5c2c7;
     color: #842029;
 }
+.actionButton.changepassword {
+    background-color: #eb9393;
+    border-color: #f5c2c7;
+    color: #0a3020;
+}
 
 .message {
     text-align: center;
@@ -372,3 +377,13 @@
     background-color: white;
     font-size: 14px;
 } */
+
+.disabled_div {
+  pointer-events: none;   /* Không cho click */
+  opacity: 0.5;           /* Làm mờ */
+  background: #ccc;       /* Màu disabled */
+}
+
+.display_option {
+    display: none;
+}

@@ -57,14 +57,24 @@ const AddUserModal = ({ isOpen, onClose, onSave }) => {
                             <input id="fullname" type="text" value={fullname} onChange={e => setFullname(e.target.value)} required />
                         </div>
                         <div className={styles.formGroup}>
+                            <label htmlFor="fullname">Mã chi nhánh</label>
+                            <select id="branch_code" value={branch_code} onChange={e => setBranchCode(e.target.value)}>
+                                <option value="">Chọn mã chi nhánh</option>
+                                <option value="6421">Hội sở - 6421</option>
+                                <option value="6221">Chi nhánh Nam Hoa - 6221</option>
+                                <option value="1605">Chi nhánh 6 - 1605</option>
+                            </select>   
+                        </div>
+                        <div className={styles.formGroup}>
                             <label htmlFor="fullname">Phòng ban</label>
-                            <select id="dept" value={dept} onChange={e => setDept(e.target.value)}>
+                            <select id="dept" className={branch_code === ''? styles.disabled_div : ""} value={dept} onChange={e => setDept(e.target.value)}>
                                 <option value="">Chọn phòng ban</option>
-                                <option value="KHCN">Khách hàng cá nhân</option>
-                                <option value="KHDN">Khách hàng doanh nghiệp</option>
-                                <option value="KH&QLRR">Kế hoạch & quản lý rủi ro</option>
-                                <option value="BGD">Ban Giám đốc</option>
-                                <option value="IT">IT</option>
+                                <option className={branch_code === '6421'? "" : styles.display_option} value="KHCN">Khách hàng cá nhân</option>
+                                <option className={branch_code === '6421'? "" : styles.display_option} value="KHDN">Khách hàng doanh nghiệp</option>
+                                <option className={branch_code !== '6421'? "" : styles.display_option} value="KH">Khách hàng</option>
+                                <option className={branch_code === '6421'? "" : styles.display_option} value="KH&QLRR">Kế hoạch & quản lý rủi ro</option>
+                                <option value="BGĐ">Ban Giám đốc</option>
+                                <option className={branch_code === '6421'? "" : styles.display_option} value="IT">IT</option>
                             </select>
                         </div>
                         <div className={styles.formGroup}>
@@ -77,15 +87,6 @@ const AddUserModal = ({ isOpen, onClose, onSave }) => {
                                 <option value="director">Giám đốc</option>
                                 <option value="deputy_director">Phó giám đốc</option>
                                 <option value="administrator">Administrator</option>
-                            </select>
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="fullname">Mã chi nhánh</label>
-                            <select id="branch_code" value={branch_code} onChange={e => setBranchCode(e.target.value)}>
-                                <option value="">Chọn mã chi nhánh</option>
-                                <option value="6421">Hội sở - 6421</option>
-                                <option value="6221">Chi nhánh Nam Hoa - 6221</option>
-                                <option value="1605">Chi nhánh 6 - 1605</option>
                             </select>
                         </div>
                         <div className={styles.formGroup}>
@@ -154,13 +155,22 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                             <input id="edit-fullname" type="text" value={fullname} onChange={e => setFullname(e.target.value)} required />
                         </div>
                         <div className={styles.formGroup}>
+                            <label htmlFor="edit-branch">Chi nhánh</label>
+                            <select id="edit-branch" value={branch_code} onChange={e => setBranchCode(e.target.value)}>
+                                <option value="6421">Hội sở</option>
+                                <option value="6221">Chi nhánh Nam Hoa</option>
+                                <option value="1605">Chi nhánh 6</option>
+                            </select>
+                        </div>
+                        <div className={styles.formGroup}>
                             <label htmlFor="edit-dept">Phòng ban</label>
-                            <select id="edit-dept" value={dept} onChange={e => setDept(e.target.value)}>
-                                <option value="KHCN">Khách hàng cá nhân</option>
-                                <option value="KHDN">Khách hàng doanh nghiệp</option>
-                                <option value="KH&QLRR">Kế hoạch & quản lý rủi ro</option>
-                                <option value="BGD">Ban Giám đốc</option>
-                                <option value="IT">IT</option>
+                            <select id="edit-dept" className={branch_code === ''? styles.disabled_div : ""} value={dept}  onChange={e => setDept(e.target.value)}>
+                                <option className={branch_code === '6421'? "" : styles.display_option} value="KHCN">Khách hàng cá nhân</option>
+                                <option className={branch_code === '6421'? "" : styles.display_option} value="KHDN">Khách hàng doanh nghiệp</option>
+                                <option className={branch_code !== '6421'? "" : styles.display_option} value="KH">Khách hàng</option>
+                                <option className={branch_code === '6421'? "" : styles.display_option} value="KH&QLRR">Kế hoạch & quản lý rủi ro</option>
+                                <option value="BGĐ">Ban Giám đốc</option>
+                                <option className={branch_code === '6421'? "" : styles.display_option} value="IT">IT</option>
                             </select>
                         </div>
                         <div className={styles.formGroup}>
@@ -169,14 +179,6 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                                 <option value="employee">Cán bộ tín dụng</option>
                                 <option value="manager">Trưởng phòng</option>
                                 <option value="administrator">Administrator</option>
-                            </select>
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="edit-branch">Chi nhánh</label>
-                            <select id="edit-branch" value={branch_code} onChange={e => setBranchCode(e.target.value)}>
-                                <option value="6421">Hội sở</option>
-                                <option value="6221">Chi nhánh Nam Hoa</option>
-                                <option value="1605">Chi nhánh 6</option>
                             </select>
                         </div>
                     </div>
@@ -232,6 +234,54 @@ const SortableHeader = ({ field, currentSortField, sortDirection, onSort, childr
         </th>
     );
 };
+ // MODAL CẬP NHẬT MẬT KHẨU NGƯỜI DÙNG
+const ChangePasswordModal = ({ isOpen, onClose, onSave, user }) => {
+        console.log("userrrrr: ", user)
+        const [oldPassword, setOldPassword] = useState('');
+        const [newPassword1, setNewPassword1] = useState('');
+        const [newPassword2, setNewPassword2] = useState('');
+
+        if (!isOpen) {
+            return null;
+        }
+    
+        const handleSubmit = (e) => {
+            e.preventDefault();
+            if (newPassword1 !== newPassword2) {
+                toast.error('Xác nhận mật khẩu không đúng!');
+                return;
+            }
+            onSave(user.employee_code, {oldPassword, newPassword1});
+        };
+    
+        return (
+            <div className={styles.modalBackdrop}>
+                <div className={styles.modalContent}>
+                    <div className={styles.modalHeader}>
+                        <h2>Đổi mật khẩu</h2>
+                        <button onClick={onClose} className={styles.closeButton}>&times;</button>
+                    </div>
+                    <form onSubmit={handleSubmit}>
+                        <div className={styles.modalBody}>
+                            <label>{user.fullname}</label>
+                            <div className={styles.formGroup}>
+                                <label>Nhập mật khẩu mới</label>
+                                <input id="newPassword1" type="password" value={newPassword1} onChange={e => setNewPassword1(e.target.value)} required />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label>Xác nhận mật khẩu mới</label>
+                                <input id="newPassword2" type="password" value={newPassword2} onChange={e => setNewPassword2(e.target.value)} required />
+                            </div>
+                        </div>
+                        <div className={styles.modalFooter}>
+                            <button type="button" className={styles.cancelButton} onClick={onClose}>Hủy</button>
+                            <button type="submit" className={styles.saveButton}>Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
+    };
 
 function UserManagement() {
     const [users, setUsers] = useState([]);
@@ -313,7 +363,8 @@ function UserManagement() {
             if (sortField === 'dept') {
                 const deptMap = {
                     'KHCN': 'Khách hàng cá nhân',
-                    'KHDN': 'Khách hàng doanh nghiệp', 
+                    'KHDN': 'Khách hàng doanh nghiệp',
+                    'KH': 'Khách hàng',
                     'KH&QLRR': 'Kế hoạch & quản lý rủi ro',
                     'BGD': 'Ban Giám đốc',
                     'IT': 'IT'
@@ -526,6 +577,40 @@ function UserManagement() {
         });
     };
 
+    const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+
+    const handleChangePassword = async (userID, data) => {
+        try {
+            const response = await fetch(API_ENDPOINTS.USERS.CHANGEPASSWORD(userID), {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                // console.error();
+                throw new Error(result.message || 'Không thể đổi mật khẩu người dùng.');
+            }
+
+            setIsChangePasswordModalOpen(false)
+            toast.success('Cập nhật mật khẩu thành công!');
+
+        } catch (error) {
+            toast.error(`Đã xảy ra lỗi: ${error.message}`);
+        }
+
+    };
+
+    const openChangePasswordModal = (user) => {
+        setCurrentUser(user);
+        setIsChangePasswordModalOpen(true);
+    };
+
     if (isLoading) {
         return <div className={styles.message}>Đang tải danh sách người dùng...</div>;
     }
@@ -545,6 +630,12 @@ function UserManagement() {
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 onSave={handleEditUser}
+                user={currentUser}
+            />
+            <ChangePasswordModal 
+                isOpen={isChangePasswordModalOpen}
+                onClose={() => setIsChangePasswordModalOpen(false)}
+                onSave={handleChangePassword}
                 user={currentUser}
             />
 
@@ -640,9 +731,10 @@ function UserManagement() {
                                     <td>{
                                         user.dept === 'KHCN' ? "Khách hàng cá nhân"
                                             : user.dept === "KHDN" ? "Khách hàng doanh nghiệp"
-                                                : user.dept === "KH&QLRR" ? "Kế hoạch & quản lý rủi ro"
-                                                    : user.dept === "BGD" ? "Ban Giám đốc"
-                                                        : user.dept === "IT" ? "IT" : "Chưa xác định"
+                                                : user.dept === "KH" ? "Khách hàng"
+                                                    : user.dept === "KH&QLRR" ? "Kế hoạch & quản lý rủi ro"
+                                                        : user.dept === "BGĐ" ? "Ban Giám đốc"
+                                                            : user.dept === "IT" ? "IT" : "Chưa xác định"
 
                                     }</td>
                                     <td>{
@@ -669,6 +761,7 @@ function UserManagement() {
                                         <button className={`${styles.actionButton} ${styles.disable}`} onClick={() => handleDisableUser(user.employee_code)}>
                                             {user.status === 'active' ? 'Vô hiệu hóa' : 'Kích hoạt'}
                                         </button>
+                                        <button className={`${styles.actionButton} ${styles.changepassword}`} onClick={() => openChangePasswordModal(user)}>Đổi MK</button>
                                         <button className={`${styles.actionButton} ${styles.delete}`} onClick={() => handleDeleteUser(user.employee_code)}>Xóa</button>
                                     </td>
                                 </tr>
