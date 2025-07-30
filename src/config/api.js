@@ -1,7 +1,5 @@
 // API Configuration
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? 'http://your-production-server.com' 
-    : 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:3000'; // Thay đổi theo địa chỉ server của bạn
 
 export const API_ENDPOINTS = {
     AUTH: {

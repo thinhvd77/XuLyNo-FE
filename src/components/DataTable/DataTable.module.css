@@ -7,7 +7,8 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    flex: 1;
+    /* flex: 1; */
+    height: 600px;
     min-height: 0;
     border: none;
 }
@@ -15,8 +16,9 @@
 .tableWrapper {
     overflow: auto;
     max-width: 100%;
-    flex: 1;
+    /* flex: 1; */
     min-height: 0;
+    max-height: calc(100vh - 200px);
 }
 
 .dataTable {
@@ -24,19 +26,25 @@
     border-collapse: collapse;
     font-size: 14px;
     min-width: 800px; /* Đảm bảo table không bị co quá nhỏ */
-    table-layout: fixed; /* Cố định layout cho consistent column widths */
+    /* table-layout: fixed; Cố định layout cho consistent column widths */
 }
 
 .tableHeader {
     background: #f8f9fa;
     color: #495057;
     font-weight: 600;
-    padding: 12px 12px;
+    padding: 10px 12px;
     text-align: left;
     border-bottom: 2px solid #dee2e6;
     position: sticky;
     top: 0;
     z-index: 10;
+    font-size: 15px;
+}
+
+.tableHeader:first-child,
+.tableCell:first-child {
+    width: 135px;
 }
 
 /* Action column sticky to right */
@@ -107,18 +115,20 @@
 }
 
 .tableCell {
-    padding: 12px;
+    padding: 10px 12px;
     vertical-align: middle;
     max-width: 300px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 14px;
+    font-size: 15px;
     color: #333;
+    /* line-height: 1.4; */
 }
 
 .tableCell:last-child {
     border-right: none;
+    /* border-top: 1px solid var(--border-color); */
     position: sticky;
     right: 0;
     background: white;
@@ -136,10 +146,10 @@
     background: none;
     color: rgb(174, 28, 63);
     border: none;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     transition: all 0.2s ease;
     white-space: nowrap;
@@ -161,10 +171,15 @@
 .loadingMessage,
 .emptyMessage {
     text-align: center;
-    padding: 40px 20px;
+    padding: 20px;
     color: #6c757d;
     font-style: italic;
     background: #fff;
+    font-size: 14px;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .loadingMessage {
@@ -236,7 +251,7 @@
     padding: 4px 8px;
     border-radius: 12px;
     text-align: center;
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }

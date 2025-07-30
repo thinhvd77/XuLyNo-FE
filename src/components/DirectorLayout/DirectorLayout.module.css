@@ -73,8 +73,11 @@
 }
 
 .mainContent {
-    padding: 24px;
-    padding-bottom: 0;
+    padding: 0;
+    height: calc(100vh - 64px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .appHeader {

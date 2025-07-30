@@ -5,7 +5,7 @@
 
   /* Giữ lại các cài đặt màu sắc và font chữ toàn cục */
   color: #213547;
-  background-color: #f4f7fa;
+  background-color: #fff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -22,7 +22,7 @@
 
 body {
   margin: 0;
-  background-color: var(--body-bg); /* Đảm bảo body có màu nền đúng */
+  background-color: #fff; /* Đảm bảo body có màu nền đúng */
 }
 
 /* --- FIX: Gỡ bỏ các style layout khỏi #root ---

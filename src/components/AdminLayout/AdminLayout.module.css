@@ -12,7 +12,7 @@
     flex-direction: column;
     height: 100vh;
     overflow: hidden; /* Quan trọng: Ngăn không cho toàn bộ trang cuộn */
-    background-color: #f4f7fa;
+    background-color: #fff;
 }
 
 .appHeader {

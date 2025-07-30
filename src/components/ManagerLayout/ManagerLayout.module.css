@@ -80,6 +80,8 @@
 .mainWrapper {
     flex-grow: 1;
     margin-left: var(--sidebar-width);
+    
+    background-color: #FFF;
 }
 
 .appHeader {

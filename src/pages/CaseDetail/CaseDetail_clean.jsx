@@ -15,29 +15,15 @@ import {
     organizeFilesByType 
 } from '../../utils/caseHelpers';
 
-// Helper function để tạo message cập nhật trạng thái cho timeline
-const getStatusUpdateMessage = (oldStatus, newStatus, userFullname) => {
-    const oldStatusName = getStatusDisplayName(oldStatus);
-    const newStatusName = getStatusDisplayName(newStatus);
-    return `${userFullname} đã cập nhật trạng thái từ "${oldStatusName}" thành "${newStatusName}"`;
-};
-
-// Component Icon tái sử dụng
-const SvgIcon = ({ path, className = '' }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d={path} /></svg>
-);
-
 function CaseDetail() {
     const { caseId } = useParams(); // Lấy ID từ URL
     const [caseData, setCaseData] = useState(null);
     const [caseNote, setCaseNote] = useState(null);
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('timeline');
     const [activeFileTab, setActiveFileTab] = useState('court'); // Tab con cho uploaded files
     const [newNote, setNewNote] = useState('');
-    const [isSubmittingNote, setIsSubmittingNote] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState('');
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
     const [previewFile, setPreviewFile] = useState(null);
@@ -179,10 +165,6 @@ function CaseDetail() {
             toast.error("Không tìm thấy token. Vui lòng đăng nhập lại.");
             return;
         }
-
-        // Lấy thông tin user từ token để ghi log
-        const userInfo = jwtDecode(token);
-        const oldStatus = caseData.state;
         
         setIsUpdatingStatus(true);
 
@@ -206,7 +188,6 @@ function CaseDetail() {
 
             // Update local case data
             setCaseData(prev => ({ ...prev, state: selectedStatus }));
-    
 
             // Refresh case notes để hiển thị log mới
             const refreshedNotesResponse = await fetch(API_ENDPOINTS.CASES.CASE_CONTENTS(caseId), {
@@ -666,28 +647,19 @@ function CaseDetail() {
                                                                 className={styles.previewBtn}
                                                                 onClick={() => handlePreviewFile(file)}
                                                             >
-                                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
-                                                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                                                                </svg>
-                                                                Xem trước
+                                                                {file.mime_type && file.mime_type.includes('pdf') ? '🔗 Mở tab mới' : 'Xem trước'}
                                                             </button>
                                                         )}
                                                         <button 
                                                             className={styles.downloadBtn}
                                                             onClick={() => handleDownloadFile(file.document_id, file.original_filename)}
                                                         >
-                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
-                                                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                                                            </svg>
                                                             Tải xuống
                                                         </button>
                                                         <button 
                                                             className={styles.deleteBtn}
                                                             onClick={() => handleDeleteFile(file.document_id)}
                                                         >
-                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
-                                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                                            </svg>
                                                             Xóa
                                                         </button>
                                                     </div>
