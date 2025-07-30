@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
+import { API_ENDPOINTS } from '../../config/api';
 import styles from './DirectorLayout.module.css';
 import toast from 'react-hot-toast';
 import btpLogo from '../../assets/BTP.svg';
@@ -11,6 +12,56 @@ const SvgIcon = ({ path }) => (
         <path d={path} />
     </svg>
 );
+
+const ChangePasswordModal = ({ isOpen, onClose, onSave, user }) => {
+        const [oldPassword, setOldPassword] = useState('');
+        const [newPassword1, setNewPassword1] = useState('');
+        const [newPassword2, setNewPassword2] = useState('');
+
+        if (!isOpen) {
+            return null;
+        }
+    
+        const handleSubmit = (e) => {
+            e.preventDefault();
+            if (newPassword1 !== newPassword2) {
+                toast.error('Xác nhận mật khẩu không đúng!');
+                return;
+            }
+            onSave(user.employee_code, {oldPassword, newPassword1});
+        };
+    
+        return (
+            <div className={styles.modalBackdrop}>
+                <div className={styles.modalContent}>
+                    <div className={styles.modalHeader}>
+                        <h2>Đổi mật khẩu</h2>
+                        <button onClick={onClose} className={styles.closeButton}>&times;</button>
+                    </div>
+                    <form onSubmit={handleSubmit}>
+                        <div className={styles.modalBody}>
+                            <div className={styles.formGroup}>
+                                <label>Nhập mật khẩu cũ</label>
+                                <input id="oldPassword" type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} required />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label>Nhập mật khẩu mới</label>
+                                <input id="newPassword1" type="password" value={newPassword1} onChange={e => setNewPassword1(e.target.value)} required />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label>Xác nhận mật khẩu mới</label>
+                                <input id="newPassword2" type="password" value={newPassword2} onChange={e => setNewPassword2(e.target.value)} required />
+                            </div>
+                        </div>
+                        <div className={styles.modalFooter}>
+                            <button type="button" className={styles.cancelButton} onClick={onClose}>Hủy</button>
+                            <button type="submit" className={styles.saveButton}>Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
+    };
 
 function DirectorLayout({ children }) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -54,7 +105,8 @@ function DirectorLayout({ children }) {
                 role: decodedUser.role === 'employee' ? 'Cán bộ Tín dụng'
                     : decodedUser.role === 'administrator' ? 'Quản trị viên'
                         : decodedUser.role === 'manager' ? 'Trưởng phòng'
-                            : 'Người dùng'
+                            : 'Người dùng',
+                employee_code: decodedUser.sub
             });
         }
     }, []);
@@ -66,42 +118,87 @@ function DirectorLayout({ children }) {
         toast.success('Bạn đã đăng xuất thành công!');
     };
 
-    return (
-        <div className={styles.appContainer}>
-            <aside className={`${styles.appSidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
-                <div className={styles.logo}>
-                    <img src={btpLogo} alt="BTP Logo" />
-                </div>
-                <nav>
-                    <ul className={styles.navList}>
-                        <li>
-                            <NavLink to="/director-dashboard" className={({ isActive }) => isActive ? styles.active : ''}>
-                                <SvgIcon path="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
-                                <span>Dashboard</span>
-                            </NavLink>
-                        </li>
-                    </ul>
-                </nav>
-            </aside>
+    const [currentUser, setCurrentUser] = useState(null);
+    const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
 
-            <div className={styles.mainWrapper}>
-                <header className={styles.appHeader}>
-                    <div className={styles.userMenu} ref={menuRef}>
-                        <span onClick={() => setMenuOpen(prev => !prev)}>
-                            <strong>{user ? user.name : '...'}</strong> ▼
-                        </span>
-                        {isMenuOpen && (
-                            <div className={styles.dropdownContent}>
-                                <a onClick={handleLogout}>Đăng xuất</a>
-                            </div>
-                        )}
+    const handleChangePassword = async (userID, data) => {
+        try {
+            const response = await fetch(API_ENDPOINTS.USERS.CHANGEPASSWORD(userID), {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                // console.error();
+                throw new Error(result.message || 'Không thể đổi mật khẩu người dùng.');
+            }
+
+            setIsChangePasswordModalOpen(false)
+            toast.success('Cập nhật mật khẩu thành công!');
+
+        } catch (error) {
+            toast.error(`Đã xảy ra lỗi: ${error.message}`);
+        }
+
+    };
+
+    const openChangePasswordModal = (user) => {
+        setCurrentUser(user);
+        setIsChangePasswordModalOpen(true);
+    };
+
+    return (
+        <>
+            <ChangePasswordModal 
+                isOpen={isChangePasswordModalOpen}
+                onClose={() => setIsChangePasswordModalOpen(false)}
+                onSave={handleChangePassword}
+                user={currentUser}
+            />
+
+            <div className={styles.appContainer}>
+                <aside className={`${styles.appSidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
+                    <div className={styles.logo}>
+                        <img src={btpLogo} alt="BTP Logo" />
                     </div>
-                </header>
-                <main className={styles.mainContent}>
-                    {children}
-                </main>
+                    <nav>
+                        <ul className={styles.navList}>
+                            <li>
+                                <NavLink to="/director-dashboard" className={({ isActive }) => isActive ? styles.active : ''}>
+                                    <SvgIcon path="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+                                    <span>Dashboard</span>
+                                </NavLink>
+                            </li>
+                        </ul>
+                    </nav>
+                </aside>
+
+                <div className={styles.mainWrapper}>
+                    <header className={styles.appHeader}>
+                        <div className={styles.userMenu} ref={menuRef}>
+                            <span onClick={() => setMenuOpen(prev => !prev)}>
+                                <strong>{user ? user.name : '...'}</strong> ▼
+                            </span>
+                            {isMenuOpen && (
+                                <div className={styles.dropdownContent}>
+                                    <a onClick={() => openChangePasswordModal(user)}>Đổi mật khẩu</a>
+                                    <a onClick={handleLogout}>Đăng xuất</a>
+                                </div>
+                            )}
+                        </div>
+                    </header>
+                    <main className={styles.mainContent}>
+                        {children}
+                    </main>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 

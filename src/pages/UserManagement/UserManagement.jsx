@@ -239,7 +239,6 @@ const SortableHeader = ({ field, currentSortField, sortDirection, onSort, childr
 };
  // MODAL CẬP NHẬT MẬT KHẨU NGƯỜI DÙNG
 const ChangePasswordModal = ({ isOpen, onClose, onSave, user }) => {
-        console.log("userrrrr: ", user)
         const [oldPassword, setOldPassword] = useState('');
         const [newPassword1, setNewPassword1] = useState('');
         const [newPassword2, setNewPassword2] = useState('');
@@ -261,12 +260,11 @@ const ChangePasswordModal = ({ isOpen, onClose, onSave, user }) => {
             <div className={styles.modalBackdrop}>
                 <div className={styles.modalContent}>
                     <div className={styles.modalHeader}>
-                        <h2>Đổi mật khẩu</h2>
+                        <h2>Đổi mật khẩu cho <sapn className={styles.title}>{user.fullname}</sapn></h2>
                         <button onClick={onClose} className={styles.closeButton}>&times;</button>
                     </div>
                     <form onSubmit={handleSubmit}>
                         <div className={styles.modalBody}>
-                            <label>{user.fullname}</label>
                             <div className={styles.formGroup}>
                                 <label>Nhập mật khẩu mới</label>
                                 <input id="newPassword1" type="password" value={newPassword1} onChange={e => setNewPassword1(e.target.value)} required />
