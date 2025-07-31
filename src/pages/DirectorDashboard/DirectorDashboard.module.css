@@ -45,11 +45,27 @@
     /* border-bottom: 1px solid var(--border-color); */
 }
 
+.headerProfiles {
+    display: flex;
+    align-items: center;
+}
+
+.headerProfiles h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    margin-top: 10px;
+    color: var(--text-color);
+    margin-right: auto;
+}
+
 .headerContent h1 {
     font-size: 22px;
     font-weight: 600;
     margin: 0;
+    margin-top: 10px;
     color: var(--text-color);
+    margin-right: auto;
 }
 
 .headerContent p {
@@ -62,7 +78,7 @@
 .filterSection {
     display: flex;
     gap: 16px;
-    margin-bottom: 16px;
+    /* margin-bottom: 16px; */
     flex-wrap: nowrap;
     align-items: center;
     flex-shrink: 0;
@@ -347,7 +363,7 @@
     justify-content: center;
     align-items: center;
     gap: 16px;
-    padding: 10px 20px;
+    padding: 5px 20px;
     flex-shrink: 0;
     border-top: 1px solid var(--border-color);
     background: white;
@@ -355,7 +371,7 @@
 }
 
 .pageBtn {
-    padding: 8px 16px;
+    padding: 5px 16px;
     border: 1px solid var(--border-color);
     background: white;
     color: var(--text-color);
@@ -401,7 +417,7 @@
 /* DataTable Integration with fixed pagination */
 .tableWithPagination {
     /* flex: 1; */
-    margin: 0 20px 15px 20px;
+    margin: 0 20px;
     min-height: 0;
     display: flex;
     flex-direction: column;
@@ -632,4 +648,159 @@
     .pageInfo {
         font-size: 13px;
     }
+}
+
+/* Dashboard Overview Styles */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 50px;
+    margin-top: 50px;
+    padding: 0 20px;
+}
+
+.statCard {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    transition: all 0.2s ease;
+}
+
+.statCard.clickable {
+    cursor: pointer;
+}
+
+.statCard.clickable:hover {
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.statCard .icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.statCard .icon.primary {
+    background: var(--primary-color-light);
+    color: var(--primary-color);
+}
+
+.statCard .icon.secondary {
+    background: var(--secondary-color-light);
+    color: var(--secondary-color);
+}
+
+.statCard .icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.statCard .info .title {
+    font-size: 16px;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.statCard .info .value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-color);
+    line-height: 1.2;
+}
+
+.debtTypeGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 0 20px;
+}
+
+.pieChartSection {
+    margin-bottom: 30px;
+    padding: 0 20px;
+}
+
+.pieChartsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 0 20px;
+}
+
+.pieChartContainer {
+    padding: 20px;
+    height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+}
+
+.cardHeader {
+    padding: 16px 20px;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    background: #f8f9fa;
+}
+
+.debtTypeStats {
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+.debtTypeStat {
+    flex: 1;
+    text-align: center;
+}
+
+.statLabel {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+}
+
+.statValue {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* Removed .contentGrid and .chartContainer as they're no longer needed */
+
+.backButton {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    /* margin-right: 16px; */
+    transition: background-color 0.2s ease;
+}
+
+.backButton:hover {
+    background: #c41e17;
 }

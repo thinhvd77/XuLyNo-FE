@@ -18,12 +18,14 @@
     align-items: flex-start;
     margin-bottom: 12px;
     flex-shrink: 0;
+    padding-right: 24px;
 }
 .pageHeader h1 {
     font-size: 24px;
     font-weight: 600;
     margin: 0;
     color: var(--text-color);
+    padding-left: 24px;
 }
 .pageHeader p {
     color: var(--text-light);
@@ -33,8 +35,7 @@
 /* Card wrapper */
 .card {
     background-color: var(--card-bg);
-    padding: 24px;
-    padding-top: 10px;
+    padding: 10px 24px;
     border-radius: 8px;
     /* box-shadow: var(--card-shadow); */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -164,9 +165,23 @@
 .dataTable th, .dataTable td {
     padding: 12px 14px;
     text-align: left;
-    border-bottom: 1px solid var(--border-color);
-    white-space: nowrap;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    /* border-bottom: 1px solid var(--border-color); */
+    /* white-space: nowrap; */
 }
+
+.dataTable th:nth-child(1),
+.dataTable td:nth-child(1) {
+    width: 140px; /* Cột đầu tiên (STT) */
+}
+
+/* Remove border from last row to prevent height inconsistency */
+.dataTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
 .dataTable tbody tr:hover {
     background-color: #fbe9e7;
 }
@@ -189,34 +204,118 @@
 .actionCell {
     display: flex;
     gap: 8px;
-}
-.actionButton {
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-}
-.actionButton:hover {
-    opacity: 0.8;
+    align-items: center;
+    justify-content: flex-start;
 }
 
-.actionButton { /* Edit button */
-    background-color: #e9ecef;
-    border-color: #dee2e6;
-    color: #333;
+.actionButton {
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: none;
+    letter-spacing: 0.025em;
+    min-width: 80px;
+    text-align: center;
+    background-color: white;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
+
+.actionButton:hover {
+    border-color: #9ca3af;
+    background-color: #f9fafb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.actionButton:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Edit button */
+.actionButton {
+    color: #3b82f6;
+    border-color: #dbeafe;
+}
+
+.actionButton:hover {
+    background-color: #eff6ff;
+    border-color: #93c5fd;
+}
+
+/* Disable/Enable button */
 .actionButton.disable {
-    background-color: #fff3cd;
-    border-color: #ffc107;
-    color: #664d03;
+    color: #f59e0b;
+    border-color: #fed7aa;
 }
+
+.actionButton.disable:hover {
+    background-color: #fffbeb;
+    border-color: #fbbf24;
+}
+
+/* Delete button */
 .actionButton.delete {
-    background-color: #f8d7da;
-    border-color: #f5c2c7;
-    color: #842029;
+    color: #ef4444;
+    border-color: #fecaca;
+}
+
+.actionButton.delete:hover {
+    background-color: #fef2f2;
+    border-color: #f87171;
+}
+
+/* Change Password button */
+.actionButton.changePassword {
+    color: #8b5cf6;
+    border-color: #e9d5ff;
+}
+
+.actionButton.changePassword:hover {
+    background-color: #faf5ff;
+    border-color: #c4b5fd;
+}
+
+.actionButton.delete:hover {
+    background-color: #fef2f2;
+    border-color: #f87171;
+}
+
+/* SVG icons for buttons */
+.actionButton svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
+/* Focus states for accessibility */
+.actionButton:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.actionButton.disable:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+}
+
+.actionButton.delete:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+}
+
+/* Disabled state */
+.actionButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .message {
@@ -334,7 +433,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
+    padding: 10px 16px;
     background-color: #ffffff;
     border: 1px solid #dee2e6;
     border-top: none;

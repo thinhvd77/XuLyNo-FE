@@ -1,5 +1,7 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:3000'; // Thay đổi theo địa chỉ server của bạn
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+    ? 'http://your-production-server.com' 
+    : 'http://localhost:3000';
 
 export const API_ENDPOINTS = {
     AUTH: {
@@ -11,6 +13,8 @@ export const API_ENDPOINTS = {
         UPDATE: (id) => `${API_BASE_URL}/api/users/${id}`,
         TOGGLE_STATUS: (id) => `${API_BASE_URL}/api/users/${id}/status`,
         DELETE: (id) => `${API_BASE_URL}/api/users/${id}`,
+        CHANGE_PASSWORD: (id) => `${API_BASE_URL}/api/users/${id}/change-password`,
+        EMPLOYEES_FOR_FILTER: `${API_BASE_URL}/api/users/employees-for-filter`,
     },
     CASES: {
         MY_CASES: `${API_BASE_URL}/api/cases/my-cases`,

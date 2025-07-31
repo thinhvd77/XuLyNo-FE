@@ -22,93 +22,29 @@ export const getStatusUpdateMessage = (oldStatus, newStatus, userFullname) => {
 // Helper function để lấy icon cho file
 export const getFileIcon = (mimeType, fileName) => {
     if (mimeType.startsWith('image/')) {
-        return (
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <circle cx="9" cy="9" r="2"/>
-                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-            </svg>
-        );
+        return '🖼️';
     } else if (mimeType.includes('pdf')) {
-        return (
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                <polyline points="14,2 14,8 20,8"/>
-                <path d="M10 13h4"/>
-                <path d="M10 17h4"/>
-                <path d="M10 9h1"/>
-            </svg>
-        );
+        return '📄';
     } else if (mimeType.includes('application/msword') || 
                mimeType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
                fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
-        return (
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                <polyline points="14,2 14,8 20,8"/>
-                <path d="M16 13H8"/>
-                <path d="M16 17H8"/>
-                <path d="M10 9H8"/>
-            </svg>
-        );
+        return '📝';
     } else if (mimeType.includes('application/vnd.ms-excel') ||
                mimeType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
                fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
-        return (
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                <polyline points="14,2 14,8 20,8"/>
-                <path d="M8 13h8"/>
-                <path d="M8 17h8"/>
-                <path d="M8 9h2"/>
-                <path d="M14 9h2"/>
-            </svg>
-        );
+        return '📊';
     } else if (mimeType.includes('application/vnd.ms-powerpoint') ||
                mimeType.includes('application/vnd.openxmlformats-officedocument.presentationml.presentation') ||
                fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) {
-        return (
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                <polyline points="14,2 14,8 20,8"/>
-                <path d="M8 14v4"/>
-                <path d="M12 14v4"/>
-                <path d="M16 14v4"/>
-                <path d="M8 10h8"/>
-            </svg>
-        );
+        return '📈';
     } else if (mimeType.startsWith('video/')) {
-        return (
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="23 7 16 12 23 17 23 7"/>
-                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-            </svg>
-        );
+        return '🎥';
     } else if (mimeType.startsWith('audio/')) {
-        return (
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 18V5l12-2v13"/>
-                <circle cx="6" cy="18" r="3"/>
-                <circle cx="18" cy="16" r="3"/>
-            </svg>
-        );
+        return '🎵';
     } else if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('7z')) {
-        return (
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 22h2a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v3"/>
-                <polyline points="14,2 14,8 20,8"/>
-                <circle cx="10" cy="20" r="2"/>
-                <path d="M10 7v6"/>
-                <path d="M10 22v-2"/>
-            </svg>
-        );
+        return '📦';
     } else {
-        return (
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                <polyline points="14,2 14,8 20,8"/>
-            </svg>
-        );
+        return '📎';
     }
 };
 

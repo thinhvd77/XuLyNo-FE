@@ -29,6 +29,10 @@
     /* table-layout: fixed; Cố định layout cho consistent column widths */
 }
 
+.dataTable td {
+    font-size: 13px;
+}
+
 .tableHeader {
     background: #f8f9fa;
     color: #495057;
@@ -184,6 +188,14 @@
 
 .loadingMessage {
     color: #007bff;
+}
+
+.dataTable th:nth-child(6), .dataTable td:nth-child(6) {
+    max-width: 150px;
+}
+
+.dataTable th:nth-child(7), .dataTable td:nth-child(7) {
+    max-width: 150px;
 }
 
 /* Responsive */

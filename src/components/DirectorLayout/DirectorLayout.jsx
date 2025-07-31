@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
 import styles from './DirectorLayout.module.css';
 import toast from 'react-hot-toast';
-import btpLogo from '../../assets/BTP.svg';
+import btpLogo from '../../assets/logo_2.png';
 
 // Component SVG Icon để tái sử dụng
 const SvgIcon = ({ path }) => (
@@ -68,7 +68,7 @@ function DirectorLayout({ children }) {
 
     return (
         <div className={styles.appContainer}>
-            <aside className={`${styles.appSidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
+            {/* <aside className={`${styles.appSidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
                 <div className={styles.logo}>
                     <img src={btpLogo} alt="BTP Logo" />
                 </div>
@@ -82,10 +82,14 @@ function DirectorLayout({ children }) {
                         </li>
                     </ul>
                 </nav>
-            </aside>
+            </aside> */}
 
             <div className={styles.mainWrapper}>
                 <header className={styles.appHeader}>
+                    <div className={styles.logo}>
+                        <img src={btpLogo} alt="BTP Logo" />
+
+                    </div>
                     <div className={styles.userMenu} ref={menuRef}>
                         <span onClick={() => setMenuOpen(prev => !prev)}>
                             <strong>{user ? user.name : '...'}</strong> ▼

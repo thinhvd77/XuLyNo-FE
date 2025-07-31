@@ -174,7 +174,7 @@ const DocumentUploader = ({ caseId, onUploadSuccess, onTimelineRefresh }) => {
                         {files.map(file => (
                             <li key={file.id} className={`${styles.fileQueueItem} ${styles[file.status]}`}>
                                 <div className={styles.fileInfo}>
-                                    <span className={`${styles.fileTypeBadge} ${styles[file.docType]}`}>{getTypeName(file.docType)}</span>
+                                    <span className={styles.fileTypeBadge}>{getTypeName(file.docType)}</span>
                                     <span className={styles.fileName}>{file.fileObject.name}</span>
                                     <span className={styles.fileSize}>({Math.round(file.fileObject.size / 1024)} KB)</span>
                                 </div>
@@ -186,21 +186,7 @@ const DocumentUploader = ({ caseId, onUploadSuccess, onTimelineRefresh }) => {
                         ))}
                     </ul>
                     <button onClick={handleUploadAll} disabled={isUploading || !hasFilesToUpload} className={styles.uploadBTN}>
-                        {isUploading ? (
-                            <>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', animation: 'spin 1s linear infinite' }}>
-                                    <path d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z"/>
-                                </svg>
-                                Đang xử lý...
-                            </>
-                        ) : (
-                            <>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
-                                    <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
-                                </svg>
-                                Tải lên tất cả
-                            </>
-                        )}
+                        {isUploading ? 'Đang xử lý...' : 'Tải lên tất cả'}
                     </button>
                 </div>
             )}

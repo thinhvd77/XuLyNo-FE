@@ -51,17 +51,13 @@ function Login() {
             // Redirect based on user role using replace to prevent back navigation
             if (decoded.dept === 'KH&QLRR') {
                 navigate('/dashboard', { replace: true });
-            }
-            if (decoded.role === 'employee') {
+            } else if (decoded.role === 'employee' && (decoded.dept === 'KHCN' || decoded.dept === 'KHDN' || decoded.dept === 'KH' || decoded.dept === 'PGD')) {
                 navigate('/my-cases', { replace: true });
-            }
-            if (decoded.role === 'administrator') {
+            } else if (decoded.role === 'administrator') {
                 navigate('/admin', { replace: true });
-            }
-            if (decoded.role === 'deputy_director' || decoded.role === 'director' || decoded.role === 'BGĐ') {
+            } else if (decoded.role === 'deputy_director' || decoded.role === 'director') {
                 navigate('/director-dashboard', { replace: true });
-            }
-            if (decoded.role === 'manager' || decoded.role === 'deputy_manager') {
+            } else if ((decoded.role === 'manager' || decoded.role === 'deputy_manager') && (decoded.dept === 'KHCN' || decoded.dept === 'KHDN' || decoded.dept === 'KH')) {
                 navigate('/manager-dashboard', { replace: true });
             }
 
