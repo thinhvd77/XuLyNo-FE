@@ -31,8 +31,10 @@
     margin-bottom: 12px;
 }
 .pageHeader h1 {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 25px;
+    font-weight: 900;
+    padding-top: 12px;
+    padding-left: 24px;
     margin: 0;
     color: var(--text-color);
 }
@@ -44,13 +46,13 @@
 /* Card wrapper */
 .card {
     background-color: #FFF;
-    padding: 24px;
+    padding: 0 24px;
     border-radius: 8px;
     /* box-shadow: var(--card-shadow); */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 160px); /* Đặt chiều cao cố định để pagination luôn ở dưới */
+    height: calc(100vh - 150px); /* Đặt chiều cao cố định để pagination luôn ở dưới */
 }
 
 .filterBar {
@@ -68,11 +70,38 @@
     font-size: 14px;
 }
 .filterSelect {
-    padding: 10px;
+    padding: 10px 12px;
+    padding-right: 32px; /* Make room for custom arrow */
     border: 1px solid var(--border-color);
     border-radius: 6px;
     background-color: white;
     font-size: 14px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    /* Remove default dropdown arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    /* Add custom dropdown arrow - matching UserManagement pattern */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px 16px;
+    outline: none;
+}
+
+.filterSelect:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(218, 37, 29, 0.1);
+    /* Change arrow color on hover */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23495057' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+.filterSelect:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(218, 37, 29, 0.15);
+    /* Change arrow color on focus */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23DA251D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
 .tableContainer {
@@ -325,34 +354,34 @@
     font-weight: 500;
 }
 
-/* Responsive adjustments cho màn hình nhỏ */
-@media (max-width: 1200px) {
-    .dataTable th:nth-child(1),
-    .dataTable td:nth-child(1) {
-        width: 10%; /* Mã Khách hàng - thu nhỏ */
-    }
-    
-    .dataTable th:nth-child(2),
-    .dataTable td:nth-child(2) {
-        width: 25%; /* Tên Khách hàng - mở rộng */
-    }
-    
-    .dataTable th:nth-child(6),
-    .dataTable td:nth-child(6) {
-        width: 11%; /* Ngày cập nhật - thu nhỏ */
-    }
+/* Custom Select Dropdown with Arrow */
+.customSelectWrapper {
+    position: relative;
+    display: inline-block;
+    width: auto;
+    min-width: 150px;
 }
 
-@media (max-width: 768px) {
-    .dataTable th,
-    .dataTable td {
-        padding: 12px 8px;
-        font-size: 13px;
-    }
-    
-    .statusBadge,
-    .caseTypeBadge {
-        font-size: 10px;
-        padding: 3px 6px;
-    }
+.customSelectWrapper::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #6c757d;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+.customSelectWrapper:hover::after {
+    border-top-color: var(--primary-color);
+}
+
+.customSelectWrapper:focus-within::after {
+    border-top-color: var(--primary-color);
+    transform: translateY(-50%) rotate(180deg);
 }

@@ -30,9 +30,13 @@ const SvgIcon = ({ path, className = '' }) => (
 function CaseDetail() {
     const { caseId } = useParams(); // Lấy ID từ URL
     const [caseData, setCaseData] = useState(null);
-    const [caseNote, setCaseNote] = useState(null);
+    const [caseNote, setCaseNote] = useState([]);
     const [uploadedFiles, setUploadedFiles] = useState([]);
+    const [hasMoreUpdates, setHasMoreUpdates] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1); // Add pagination state
+    const [updatesPerPage] = useState(5); // Fixed at 5 updates per page
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingMoreUpdates, setIsLoadingMoreUpdates] = useState(false);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('timeline');
     const [activeFileTab, setActiveFileTab] = useState('court'); // Tab con cho uploaded files
@@ -51,11 +55,51 @@ function CaseDetail() {
     });
     const navigate = useNavigate();
 
+    // Function to fetch updates with pagination
+    const fetchUpdates = async (page = 1, reset = false) => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+            const response = await fetch(
+                `${API_ENDPOINTS.CASES.CASE_UPDATES(caseId)}?page=${page}&limit=${updatesPerPage}`, 
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.ok) {
+                const updatesData = await response.json();
+                const updates = updatesData.data || updatesData.updates || [];
+                const pagination = updatesData.pagination || {};
+                
+                if (reset) {
+                    setCaseNote(updates);
+                } else {
+                    setCaseNote(prev => [...prev, ...updates]);
+                }
+                
+                setHasMoreUpdates(pagination.hasMore || false);
+                setCurrentPage(page);
+                
+                console.log('Updates fetched:', {
+                    page,
+                    count: updates.length,
+                    hasMore: pagination.hasMore,
+                    total: pagination.total
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching updates:', error);
+        }
+    };
+
     useEffect(() => {
-        const fetchCases = async () => {
+        const fetchCaseOverview = async () => {
             const token = localStorage.getItem('token');
             if (!token) {
-                // Nếu không có token, người dùng chưa đăng nhập, chuyển về trang login
                 navigate('/login');
                 return;
             }
@@ -64,7 +108,8 @@ function CaseDetail() {
                 setIsLoading(true);
                 setError(null);
 
-                const response = await fetch(API_ENDPOINTS.CASES.CASE_DETAIL(caseId), {
+                // Fetch basic case data first
+                const response = await fetch(API_ENDPOINTS.CASES.CASE_OVERVIEW(caseId), {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -74,37 +119,16 @@ function CaseDetail() {
                     throw new Error('Không thể tải dữ liệu hồ sơ.');
                 }
 
-                const {data} = await response.json();
+                const { data } = await response.json();
                 
-                setCaseData(data);
-                // Set initial status for the case
+                // Set basic case data and files
+                setCaseData(data.caseDetail);
+                setSelectedStatus(data.caseDetail.state);
+                setUploadedFiles(data.documents || []);
+                
+                // Fetch first page of updates separately
+                await fetchUpdates(1, true); // true = reset updates array
 
-                setSelectedStatus(data.state); // Set initial status
-
-                const noteResponse = await fetch(API_ENDPOINTS.CASES.CASE_CONTENTS(caseId), {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!noteResponse.ok) {
-                    throw new Error('Không thể tải dữ liệu hồ sơ.');
-                }
-
-                const notes = await noteResponse.json();
-                setCaseNote(notes);
-
-                // Fetch uploaded files
-                const filesResponse = await fetch(API_ENDPOINTS.CASES.DOCUMENTS(caseId), {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (filesResponse.ok) {
-                    const filesData = await filesResponse.json();
-                    setUploadedFiles(filesData.data || []);
-                }
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -112,8 +136,24 @@ function CaseDetail() {
             }
         };
 
-        fetchCases();
-    }, [navigate]);
+        fetchCaseOverview();
+    }, [caseId, navigate, updatesPerPage]);
+
+    // Function to load more updates on demand
+    const loadMoreUpdates = async () => {
+        if (isLoadingMoreUpdates || !hasMoreUpdates) return;
+
+        try {
+            setIsLoadingMoreUpdates(true);
+            await fetchUpdates(currentPage + 1, false); // false = append to existing updates
+            toast.success(`Đã tải thêm ${updatesPerPage} cập nhật`);
+        } catch (err) {
+            console.error('Error loading more updates:', err);
+            toast.error('Không thể tải thêm lịch sử cập nhật');
+        } finally {
+            setIsLoadingMoreUpdates(false);
+        }
+    };
 
     const handleAddNote = async () => {
         if (!newNote.trim()) {
@@ -149,18 +189,9 @@ function CaseDetail() {
 
             setNewNote('');
             toast.success("Đã thêm ghi chú mới!");
-            const noteResponse = await fetch(API_ENDPOINTS.CASES.CASE_CONTENTS(caseId), {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!noteResponse.ok) {
-                throw new Error('Không thể tải dữ liệu hồ sơ.');
-            }
-
-            const notes = await noteResponse.json();
-            setCaseNote(notes);
+            
+            // Refresh timeline from the first page to show new note
+            await fetchUpdates(1, true);
         } catch (error) {
             toast.error(`Lỗi: ${error.message}`);
         } finally {
@@ -207,18 +238,8 @@ function CaseDetail() {
             // Update local case data
             setCaseData(prev => ({ ...prev, state: selectedStatus }));
     
-
-            // Refresh case notes để hiển thị log mới
-            const refreshedNotesResponse = await fetch(API_ENDPOINTS.CASES.CASE_CONTENTS(caseId), {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (refreshedNotesResponse.ok) {
-                const notes = await refreshedNotesResponse.json();
-                setCaseNote(notes);
-            }
+            // Refresh timeline from the first page to show status update
+            await fetchUpdates(1, true);
 
             toast.success(`Đã cập nhật trạng thái thành "${getStatusDisplayName(selectedStatus)}"!`);
         } catch (error) {
@@ -399,18 +420,14 @@ function CaseDetail() {
     };
 
     const refreshTimeline = async () => {
-        const token = localStorage.getItem('token');
         try {
-            const noteResponse = await fetch(API_ENDPOINTS.CASES.CASE_CONTENTS(caseId), {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (noteResponse.ok) {
-                const notes = await noteResponse.json();
-                setCaseNote(notes);
-            }
+            // Add a small delay to ensure backend has processed the upload
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Refresh timeline from the first page
+            await fetchUpdates(1, true);
+            
+            console.log('Timeline refreshed successfully');
         } catch (error) {
             console.error('Error refreshing timeline:', error);
         }
@@ -492,7 +509,7 @@ function CaseDetail() {
                     <div className={styles.card}>
                         <h3>Thông tin Khoản nợ</h3>
                         <dl className={styles.infoGrid}>
-                            <dt>Dư nợ hiện tại:</dt><dd><strong>{parseFloat(caseData.outstanding_debt).toLocaleString('vi-VN')} VND</strong></dd>
+                            <dt>Dư nợ:</dt><dd><strong>{parseFloat(caseData.outstanding_debt).toLocaleString('vi-VN')} VND</strong></dd>
                             <dt>Trạng thái:</dt><dd><strong style={{color: 'var(--primary-color)'}}>{getStatusDisplayName(caseData.state)}</strong></dd>
                         </dl>
                     </div>
@@ -538,6 +555,7 @@ function CaseDetail() {
                             <div className={styles.formGroup}>
                                 <label htmlFor="new-note">Thêm ghi chú/cập nhật mới:</label>
                                 <textarea
+                                    // not allow resize
                                     id="new-note"
                                     rows="4"
                                     className={styles.formControl}
@@ -549,7 +567,7 @@ function CaseDetail() {
                             </div>
                             <hr className={styles.divider} />
                             <div className={styles.timeline}>
-                                {caseNote.data.map(entry => {
+                                {caseNote && Array.isArray(caseNote) && caseNote.map(entry => {
                                     // Lấy tên người dùng từ entry hoặc token hiện tại
                                     const getCurrentUserName = () => {
                                         try {
@@ -591,6 +609,28 @@ function CaseDetail() {
                                     );
                                 })}
                             </div>
+                            
+                            {/* Load More Button */}
+                            {hasMoreUpdates && (
+                                <div className={styles.loadMoreContainer}>
+                                    <button 
+                                        className={styles.loadMoreButton}
+                                        onClick={loadMoreUpdates}
+                                        disabled={isLoadingMoreUpdates}
+                                    >
+                                        {isLoadingMoreUpdates ? 'Đang tải...' : `Xem thêm ${updatesPerPage} cập nhật`}
+                                    </button>
+                                </div>
+                            )}
+                            
+                            {/* Show total count when all updates are loaded */}
+                            {!hasMoreUpdates && caseNote.length > 0 && (
+                                <div className={styles.totalCountContainer}>
+                                    <span className={styles.totalCount}>
+                                        Đã hiển thị tất cả {caseNote.length} lịch sử cập nhật
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     )}
 

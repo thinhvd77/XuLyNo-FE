@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
         DELETE: (id) => `${API_BASE_URL}/api/users/${id}`,
         CHANGE_PASSWORD: (id) => `${API_BASE_URL}/api/users/${id}/change-password`,
         EMPLOYEES_FOR_FILTER: `${API_BASE_URL}/api/users/employees-for-filter`,
+        BRANCHES_FOR_FILTER: `${API_BASE_URL}/api/users/branches-for-filter`,
     },
     CASES: {
         MY_CASES: `${API_BASE_URL}/api/cases/my-cases`,
@@ -26,6 +27,7 @@ export const API_ENDPOINTS = {
         DOCUMENT_PREVIEW: (documentId) => `${API_BASE_URL}/api/cases/documents/${documentId}/preview`,
         DOCUMENT_DOWNLOAD: (documentId) => `${API_BASE_URL}/api/cases/documents/${documentId}/download`,
         CASE_DETAIL: (caseId) => `${API_BASE_URL}/api/cases/${caseId}`,
+        CASE_OVERVIEW: (caseId) => `${API_BASE_URL}/api/cases/${caseId}/overview`,
         CASE_CONTENTS: (caseId) => `${API_BASE_URL}/api/cases/contents/${caseId}`,
         CASE_UPDATES: (caseId) => `${API_BASE_URL}/api/cases/${caseId}/updates`,
         CASE_STATUS: (caseId) => `${API_BASE_URL}/api/cases/${caseId}/status`,

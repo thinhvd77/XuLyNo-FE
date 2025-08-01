@@ -7,18 +7,18 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    /* flex: 1; */
-    height: 600px;
+    flex: 1;
+    height: 580px;
     min-height: 0;
-    border: none;
+    border: 1px solid var(--border-color);
 }
 
 .tableWrapper {
     overflow: auto;
     max-width: 100%;
-    /* flex: 1; */
+    flex: 1;
     min-height: 0;
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 150px);
 }
 
 .dataTable {
@@ -26,7 +26,6 @@
     border-collapse: collapse;
     font-size: 14px;
     min-width: 800px; /* Đảm bảo table không bị co quá nhỏ */
-    /* table-layout: fixed; Cố định layout cho consistent column widths */
 }
 
 .dataTable td {
@@ -48,7 +47,8 @@
 
 .tableHeader:first-child,
 .tableCell:first-child {
-    width: 135px;
+    /* Allow column width to be controlled by inline styles */
+    width: auto;
 }
 
 /* Action column sticky to right */
@@ -57,10 +57,7 @@
     right: 0;
     background: #f8f9fa;
     z-index: 11;
-    text-align: center;
-    min-width: 120px;
-    max-width: 120px;
-    width: 120px;
+    text-align: left;
 }
 
 .tableHeader.sortable {
@@ -121,29 +118,24 @@
 .tableCell {
     padding: 10px 12px;
     vertical-align: middle;
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 15px;
+    font-size: 13px;
     color: #333;
-    /* line-height: 1.4; */
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    /* Remove constraining styles to allow column width control */
 }
 
 .tableCell:last-child {
     border-right: none;
-    /* border-top: 1px solid var(--border-color); */
     position: sticky;
     right: 0;
     background: white;
     z-index: 5;
-    text-align: center;
-    min-width: 120px;
-    max-width: 120px;
-    width: 120px;
+    text-align: left;
     overflow: visible;
     text-overflow: unset;
-    white-space: normal;
+    white-space: nowrap;
 }
 
 .actionButton {

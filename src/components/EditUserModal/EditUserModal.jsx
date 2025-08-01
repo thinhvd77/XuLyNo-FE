@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./EditUserModal.module.css";
 
-const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
+const EditUserModal = ({ isOpen, onClose, onSubmit, user }) => {
   const [fullname, setFullname] = useState("");
   const [role, setRole] = useState("employee");
   const [dept, setDept] = useState("");
@@ -10,9 +10,51 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
   useEffect(() => {
     if (user) {
       setFullname(user.fullname);
-      setRole(user.role);
-      setDept(user.dept);
       setBranchCode(user.branch_code);
+      
+      // Xử lý dept: nếu dept hiện tại không phù hợp với branch_code, reset về giá trị mặc định
+      let finalDept;
+      if (user.branch_code === "6421") {
+        // Hội sở: có thể giữ dept hiện tại
+        finalDept = user.dept;
+      } else {
+        // Chi nhánh khác: chỉ có "KH" và "BGĐ"
+        if (user.dept === "BGĐ") {
+          finalDept = "BGĐ";
+        } else {
+          // Nếu dept hiện tại không phải BGĐ, chuyển thành "KH" (phòng khách hàng)
+          finalDept = "KH";
+        }
+      }
+      setDept(finalDept);
+      
+      // Xử lý role: điều chỉnh role cho phù hợp với dept mới
+      let finalRole;
+      if (finalDept === "BGĐ") {
+        // Ban Giám đốc: chỉ có director hoặc deputy_director
+        if (["director", "deputy_director"].includes(user.role)) {
+          finalRole = user.role;
+        } else {
+          finalRole = "director"; // mặc định
+        }
+      } else if (finalDept === "IT") {
+        finalRole = "administrator";
+      } else if (finalDept === "KH&QLRR") {
+        // Kế hoạch & quản lý rủi ro: có thể giữ role hiện tại nếu phù hợp
+        if (["employee", "deputy_manager", "manager"].includes(user.role)) {
+          finalRole = user.role;
+        } else {
+          finalRole = "employee";
+        }
+      } else {
+        // Các phòng khác (KH, KHCN, KHDN, PGD): CBTD, Phó phòng, Trưởng phòng
+        if (["employee", "deputy_manager", "manager"].includes(user.role)) {
+          finalRole = user.role;
+        } else {
+          finalRole = "employee";
+        }
+      }
+      setRole(finalRole);
     }
   }, [user]);
 
@@ -22,7 +64,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(user.employee_code, { fullname, role, dept, branch_code });
+    onSubmit(user.employee_code, { fullname, role, dept, branch_code });
   };
 
   return (
@@ -38,7 +80,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
           <div className={styles.modalBody}>
             <div className={styles.formGroup}>
               <label>Mã Nhân viên</label>
-              <input type="text" value={user.employee_code} disabled />
+              <input type="text" value={user.employee_code} />
             </div>
             <div className={styles.formGroup}>
               <label>Tên đăng nhập</label>
@@ -62,13 +104,26 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                 onChange={(e) => {
                   const newBranchCode = e.target.value;
                   setBranchCode(newBranchCode);
-                  // Reset phòng ban và chức vụ khi thay đổi chi nhánh
-                  if (
-                    newBranchCode !== "6421" &&
-                    ["KHCN", "KHDN", "KH&QLRR", "IT"].includes(dept)
-                  ) {
-                    setDept("");
-                    setRole("");
+                  // Tự động điều chỉnh dept và role khi thay đổi chi nhánh
+                  if (newBranchCode === "6421") {
+                    // Hội sở: giữ dept hiện tại nếu hợp lệ, không thì set mặc định
+                    if (!["KHCN", "KHDN", "KH&QLRR", "PGD", "BGĐ", "IT"].includes(dept)) {
+                      setDept("KHCN");
+                      setRole("employee");
+                    }
+                  } else {
+                    // Chi nhánh khác: chỉ có KH và BGĐ
+                    if (dept === "BGĐ") {
+                      setDept("BGĐ");
+                      if (!["director", "deputy_director"].includes(role)) {
+                        setRole("director");
+                      }
+                    } else {
+                      setDept("KH");
+                      if (!["employee", "deputy_manager", "manager"].includes(role)) {
+                        setRole("employee");
+                      }
+                    }
                   }
                 }}
               >
@@ -85,15 +140,22 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                 onChange={(e) => {
                   const newDept = e.target.value;
                   setDept(newDept);
-                  // Reset chức vụ khi thay đổi phòng ban nếu không phù hợp
-                  if (
-                    (newDept === "BGĐ" &&
-                      !["director", "deputy_director"].includes(role)) ||
-                    (newDept === "IT" && role !== "administrator") ||
-                    (!["BGĐ", "IT"].includes(newDept) &&
-                      !["employee", "deputy_manager", "manager"].includes(role))
-                  ) {
-                    setRole("");
+                  // Tự động set role phù hợp với dept mới
+                  if (newDept === "BGĐ") {
+                    if (!["director", "deputy_director"].includes(role)) {
+                      setRole("director");
+                    }
+                  } else if (newDept === "IT") {
+                    setRole("administrator");
+                  } else if (newDept === "KH&QLRR") {
+                    if (!["employee", "deputy_manager", "manager"].includes(role)) {
+                      setRole("employee");
+                    }
+                  } else {
+                    // Các phòng khác
+                    if (!["employee", "deputy_manager", "manager"].includes(role)) {
+                      setRole("employee");
+                    }
                   }
                 }}
               >
@@ -103,6 +165,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                     <option value="KHCN">Khách hàng cá nhân</option>
                     <option value="KHDN">Khách hàng doanh nghiệp</option>
                     <option value="KH&QLRR">Kế hoạch & quản lý rủi ro</option>
+                    <option value="PGD">PGD Bình Tây</option>
                     <option value="BGĐ">Ban Giám đốc</option>
                     <option value="IT">IT</option>
                   </>

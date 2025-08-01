@@ -2,7 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import styles from "./ChangePasswordModal.module.css";
 
-const ChangePasswordModal = ({ isOpen, onClose, onSave, user }) => {
+const ChangePasswordModal = ({ isOpen, onClose, onSubmit, user }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -29,7 +29,7 @@ const ChangePasswordModal = ({ isOpen, onClose, onSave, user }) => {
       return;
     }
 
-    onSave(user.employee_code, { newPassword });
+    onSubmit(user.employee_code, { newPassword });
     resetForm();
   };
 

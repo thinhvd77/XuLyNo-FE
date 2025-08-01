@@ -38,7 +38,7 @@ const DocumentUploader = ({ caseId, onUploadSuccess, onTimelineRefresh }) => {
         }
     }, [currentDocType]);
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
         maxSize: 50 * 1024 * 1024,
         accept: {
@@ -79,20 +79,20 @@ const DocumentUploader = ({ caseId, onUploadSuccess, onTimelineRefresh }) => {
             toast.error('Không tìm thấy token. Vui lòng đăng nhập lại.');
             return;
         }
-        
+
         setIsUploading(true);
         toast.loading('Đang tải lên các file...', { id: 'upload-all' });
-        
+
         const filesToUpload = files.filter(f => f.status === 'waiting' || f.status === 'error');
-        
+
         const uploadPromises = filesToUpload.map(file => {
             const formData = new FormData();
-            
+
             const fileBlob = new File([file.fileObject], file.fileObject.name, {
                 type: file.fileObject.type,
                 lastModified: file.fileObject.lastModified
             });
-            
+
             formData.append('documentFile', fileBlob);
             formData.append('document_type', file.docType);
 
@@ -101,42 +101,42 @@ const DocumentUploader = ({ caseId, onUploadSuccess, onTimelineRefresh }) => {
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData,
             })
-            .then(async res => {
-                const data = await res.json();
-                if (!res.ok) {
-                    throw new Error(data.message || 'Upload thất bại');
-                }
-                setFiles(prev => prev.map(f => f.id === file.id ? { ...f, status: 'success', message: 'Thành công' } : f));
-                return data;
-            })
-            .catch(err => {
-                let errorMessage = 'Upload thất bại';
-                
-                if (err.message.includes('File quá lớn')) {
-                    errorMessage = 'File quá lớn (tối đa 50MB)';
-                } else if (err.message.includes('Loại file không được hỗ trợ')) {
-                    errorMessage = 'Loại file không được hỗ trợ';
-                } else if (err.message.includes('Không đủ dung lượng')) {
-                    errorMessage = 'Không đủ dung lượng lưu trữ';
-                }
-                
-                setFiles(prev => prev.map(f => f.id === file.id ? { ...f, status: 'error', message: errorMessage } : f));
-                throw err;
-            });
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.message || 'Upload thất bại');
+                    }
+                    setFiles(prev => prev.map(f => f.id === file.id ? { ...f, status: 'success', message: 'Thành công' } : f));
+                    return data;
+                })
+                .catch(err => {
+                    let errorMessage = 'Upload thất bại';
+
+                    if (err.message.includes('File quá lớn')) {
+                        errorMessage = 'File quá lớn (tối đa 50MB)';
+                    } else if (err.message.includes('Loại file không được hỗ trợ')) {
+                        errorMessage = 'Loại file không được hỗ trợ';
+                    } else if (err.message.includes('Không đủ dung lượng')) {
+                        errorMessage = 'Không đủ dung lượng lưu trữ';
+                    }
+
+                    setFiles(prev => prev.map(f => f.id === file.id ? { ...f, status: 'error', message: errorMessage } : f));
+                    throw err;
+                });
         });
 
         await Promise.all(uploadPromises);
         setIsUploading(false);
         toast.dismiss('upload-all');
-        
+
         if (onUploadSuccess) {
             onUploadSuccess();
         }
-        
+
         if (onTimelineRefresh) {
             onTimelineRefresh();
         }
-        
+
         setFiles(prev => prev.filter(f => f.status !== 'success'));
         toast.success('Hoàn tất quá trình upload!');
     };
@@ -166,10 +166,15 @@ const DocumentUploader = ({ caseId, onUploadSuccess, onTimelineRefresh }) => {
                     <p>Kéo thả hoặc nhấn để chọn file</p>
                 </div>
             </div>
-            
+
             {files.length > 0 && (
                 <div className={styles.fileList}>
-                    <h4>Danh sách file chờ upload ({files.length})</h4>
+                    <div className={styles.fileListHeader}>
+                        <h4>Danh sách file chờ upload ({files.length})</h4>
+                        <button onClick={handleUploadAll} disabled={isUploading || !hasFilesToUpload} className={styles.uploadBTN}>
+                            {isUploading ? 'Đang xử lý...' : 'Tải lên tất cả'}
+                        </button>
+                    </div>
                     <ul>
                         {files.map(file => (
                             <li key={file.id} className={`${styles.fileQueueItem} ${styles[file.status]}`}>
@@ -185,9 +190,6 @@ const DocumentUploader = ({ caseId, onUploadSuccess, onTimelineRefresh }) => {
                             </li>
                         ))}
                     </ul>
-                    <button onClick={handleUploadAll} disabled={isUploading || !hasFilesToUpload} className={styles.uploadBTN}>
-                        {isUploading ? 'Đang xử lý...' : 'Tải lên tất cả'}
-                    </button>
                 </div>
             )}
         </div>

@@ -8,12 +8,73 @@ const CaseDetailModal = ({ caseId, isOpen, onClose }) => {
     const [caseDocuments, setCaseDocuments] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    
+    // Pagination state for updates
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMoreUpdates, setHasMoreUpdates] = useState(false);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const updatesPerPage = 5;
 
     useEffect(() => {
         if (isOpen && caseId) {
             fetchCaseDetail();
         }
     }, [isOpen, caseId]);
+
+    // Function to fetch updates with pagination
+    const fetchUpdates = async (page = 1, reset = false) => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+            const response = await fetch(
+                `${API_ENDPOINTS.CASES.CASE_UPDATES(caseId)}?page=${page}&limit=${updatesPerPage}`, 
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.ok) {
+                const updatesResult = await response.json();
+                const updates = updatesResult.data || [];
+                const pagination = updatesResult.pagination || {};
+                
+                if (reset) {
+                    setCaseUpdates(updates);
+                } else {
+                    setCaseUpdates(prev => [...prev, ...updates]);
+                }
+                
+                setHasMoreUpdates(pagination.hasMore || false);
+                setCurrentPage(page);
+                
+                console.log('Updates fetched:', {
+                    page,
+                    count: updates.length,
+                    hasMore: pagination.hasMore,
+                    total: pagination.total
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching updates:', error);
+        }
+    };
+
+    // Function to load more updates
+    const loadMoreUpdates = async () => {
+        if (isLoadingMore || !hasMoreUpdates) return;
+
+        try {
+            setIsLoadingMore(true);
+            await fetchUpdates(currentPage + 1, false);
+        } catch (error) {
+            console.error('Error loading more updates:', error);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    };
 
     const fetchCaseDetail = async () => {
         const token = localStorage.getItem('token');
@@ -40,20 +101,10 @@ const CaseDetailModal = ({ caseId, isOpen, onClose }) => {
             console.log('Detail result:', detailResult);
             setCaseDetail(detailResult.data);
 
-            // Lấy danh sách updates
-            console.log('Fetching case updates for ID:', caseId);
-            const updatesResponse = await fetch(API_ENDPOINTS.CASES.CASE_UPDATES(caseId), {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            console.log('Updates response status:', updatesResponse.status);
-            if (updatesResponse.ok) {
-                const updatesResult = await updatesResponse.json();
-                console.log('Updates result:', updatesResult);
-                setCaseUpdates(updatesResult.data || []);
-            }
+            // Reset pagination state and fetch first page of updates
+            setCurrentPage(1);
+            setHasMoreUpdates(false);
+            await fetchUpdates(1, true); // true = reset updates array
 
             // Lấy danh sách documents
             console.log('Fetching case documents for ID:', caseId);
@@ -257,7 +308,7 @@ const CaseDetailModal = ({ caseId, isOpen, onClose }) => {
                             )}
 
                             {/* Thông tin khách hàng */}
-                            <div className={styles.section}>
+                            {/* <div className={styles.section}>
                                 <h3 className={styles.sectionTitle}>Thông tin khách hàng</h3>
                                 <div className={styles.customerInfo}>
                                     <div className={styles.infoGrid}>
@@ -307,7 +358,7 @@ const CaseDetailModal = ({ caseId, isOpen, onClose }) => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
 
                             {/* Tài liệu đính kèm */}
                             <div className={styles.section}>
@@ -368,37 +419,74 @@ const CaseDetailModal = ({ caseId, isOpen, onClose }) => {
 
                             {/* Lịch sử cập nhật */}
                             <div className={styles.section}>
-                                <h3 className={styles.sectionTitle}>Lịch sử cập nhật gần nhất</h3>
+                                <h3 className={styles.sectionTitle}>
+                                    Lịch sử cập nhật 
+                                    {caseUpdates.length > 0 && (
+                                        <span className={styles.updateCount}>({caseUpdates.length})</span>
+                                    )}
+                                </h3>
                                 <div className={styles.updatesContainer}>
                                     {caseUpdates.length === 0 ? (
                                         <div className={styles.noUpdates}>
                                             Chưa có cập nhật nào cho hồ sơ này.
                                         </div>
                                     ) : (
-                                        <div className={styles.timeline}>
-                                            {caseUpdates.slice(0, 10).map((update, index) => (
-                                                <div key={update.update_id} className={styles.timelineItem}>
-                                                    <div className={styles.timelineIcon}>
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                                        </svg>
-                                                    </div>
-                                                    <div className={styles.timelineContent}>
-                                                        <div className={styles.updateMeta}>
-                                                            <span className={styles.updateDate}>
-                                                                {formatDate(update.created_date)}
-                                                            </span>
-                                                            <span className={styles.updateAuthor}>
-                                                                {update.officer?.fullname || 'Không xác định'}
-                                                            </span>
+                                        <>
+                                            <div className={styles.timelineContainer}>
+                                                <div className={styles.timeline}>
+                                                    {caseUpdates.map((update, index) => (
+                                                        <div key={update.update_id} className={styles.timelineItem}>
+                                                            <div className={styles.timelineIcon}>
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                                                </svg>
+                                                            </div>
+                                                            <div className={styles.timelineContent}>
+                                                                <div className={styles.updateMeta}>
+                                                                    <span className={styles.updateDate}>
+                                                                        {formatDate(update.created_date)}
+                                                                    </span>
+                                                                    <span className={styles.updateAuthor}>
+                                                                        {update.officer?.fullname || 'Không xác định'}
+                                                                    </span>
+                                                                </div>
+                                                                <div className={styles.updateContent}>
+                                                                    {update.update_content}
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div className={styles.updateContent}>
-                                                            {update.update_content}
-                                                        </div>
-                                                    </div>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
+                                            </div>
+                                            
+                                            {/* Show More Button - Fixed at bottom */}
+                                            {hasMoreUpdates && (
+                                                <div className={styles.showMoreContainer}>
+                                                    <button 
+                                                        onClick={loadMoreUpdates}
+                                                        className={styles.showMoreBtn}
+                                                        disabled={isLoadingMore}
+                                                    >
+                                                        {isLoadingMore ? (
+                                                            <>
+                                                                <svg className={styles.loadingIcon} width="16" height="16" viewBox="0 0 24 24">
+                                                                    <path fill="currentColor" d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"/>
+                                                                    <path fill="currentColor" d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z"/>
+                                                                </svg>
+                                                                Đang tải...
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                Xem thêm {updatesPerPage} cập nhật
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                                    <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                                                                </svg>
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             </div>

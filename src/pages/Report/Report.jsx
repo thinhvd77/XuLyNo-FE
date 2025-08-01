@@ -100,7 +100,7 @@ function Report() {
                 if (value) queryParams.append(key, value);
             });
 
-            const response = await fetch(`${API_BASE_URL}/api/report/export?${queryParams}`, {
+            const response = await fetch(`${API_BASE_URL}/api/report/export-latest-updates?${queryParams}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -263,7 +263,7 @@ function Report() {
                             <label>Từ ngày</label>
                             <input 
                                 type="date" 
-                                value={filters.startDate} 
+                                value={filters.startDate}
                                 onChange={(e) => handleFilterChange('startDate', e.target.value)}
                                 className={styles.filterInput}
                             />
@@ -274,7 +274,7 @@ function Report() {
                             <label>Đến ngày</label>
                             <input 
                                 type="date" 
-                                value={filters.endDate} 
+                                value={filters.endDate}
                                 onChange={(e) => handleFilterChange('endDate', e.target.value)}
                                 className={styles.filterInput}
                             />
@@ -283,7 +283,7 @@ function Report() {
 
                     <div className={styles.filterActions}>
                         <button 
-                            onClick={fetchReportData} 
+                            onClick={fetchReportData}
                             disabled={loading}
                             className={styles.searchBtn}
                         >
@@ -295,7 +295,7 @@ function Report() {
                         >
                             Đặt lại
                         </button>
-                        <button 
+                        <button
                             onClick={exportToExcel}
                             disabled={exporting || reportData.length === 0}
                             className={styles.exportBtn}

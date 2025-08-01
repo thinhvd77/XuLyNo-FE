@@ -112,6 +112,7 @@
     box-shadow: var(--card-shadow);
     margin-bottom: 24px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    max-height: 100vh;
 }
 
 .card:hover {

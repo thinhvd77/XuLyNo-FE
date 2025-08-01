@@ -1,7 +1,8 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from './MyCases.module.css';
 import Pagination from '../../components/Pagination/Pagination';
+import DataTable from '../../components/DataTable/DataTable';
 import { jwtDecode } from "jwt-decode";
 import { API_ENDPOINTS } from '../../config/api';
 
@@ -44,96 +45,95 @@ const CaseTypeBadge = ({ caseType }) => {
     );
 };
 
-// Component SortableHeader để hiển thị cột có thể sort
-const SortableHeader = ({ field, currentSortField, sortDirection, onSort, children }) => {
-    const handleClick = () => {
-        onSort(field);
-    };
-
-    const getSortIcon = () => {
-        if (currentSortField !== field) {
-            return (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 10L12 6L16 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M8 14L12 18L16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-            );
-        }
-        return sortDirection === 'asc' 
-            ? (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 14L12 10L16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-            )
-            : (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 10L12 14L16 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-            );
-    };
-
-    return (
-        <th 
-            onClick={handleClick} 
-            className={`${styles.sortableHeader} ${currentSortField === field ? styles.sorted : ''}`}
-            style={{ cursor: 'pointer', userSelect: 'none' }}
-        >
-            <div className={styles.headerContent}>
-                <span>{children}</span>
-                <span className={styles.sortIcon}>{getSortIcon()}</span>
-            </div>
-        </th>
-    );
+// Helper function để format tiền tệ
+const formatCurrency = (amount) => {
+    const numValue = parseFloat(amount);
+    if (isNaN(numValue)) return '0';
+    return numValue.toLocaleString('vi-VN');
 };
 
-
 function MyCases() {
-    const [allCases, setAllCases] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // State quản lý danh sách cases và phân trang
+    const [cases, setCases] = useState([]);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalCases, setTotalCases] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-
+    
+    // State quản lý filters và sorting
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [caseTypeFilter, setCaseTypeFilter] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [sortField, setSortField] = useState('');
-    const [sortDirection, setSortDirection] = useState('asc');
+    const [sortField, setSortField] = useState('last_modified_date');
+    const [sortDirection, setSortDirection] = useState('desc');
+    
+    // State để quản lý loading và initial load
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const fetchingRef = useRef(false);
     const navigate = useNavigate();
 
-    // Sử dụng useEffect để fetch dữ liệu từ API khi component được mount
-    useEffect(() => {
-        const fetchCases = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                // Nếu không có token, người dùng chưa đăng nhập, chuyển về trang login
-                navigate('/login');
-                return;
+    // Callback để fetch cases từ server với pagination
+    const fetchMyCases = useCallback(async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+
+        if (fetchingRef.current) {
+            return;
+        }
+
+        try {
+            fetchingRef.current = true;
+            setIsLoading(true);
+            setError(null);
+            
+            // Tạo URL với các tham số pagination và filtering
+            let url = `${API_ENDPOINTS.CASES.MY_CASES}?page=${currentPage}&limit=${ITEMS_PER_PAGE}&search=${searchTerm}&type=${caseTypeFilter}&status=${statusFilter}`;
+            
+            // Thêm tham số sort nếu có
+            if (sortField) {
+                url += `&sortBy=${sortField}&sortOrder=${sortDirection}`;
             }
-
-            try {
-                setIsLoading(true);
-                setError(null);
-                const response = await fetch(API_ENDPOINTS.CASES.MY_CASES, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Không thể tải dữ liệu hồ sơ.');
+            
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
+            });
 
-                const data = await response.json();
-                setAllCases(data);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setIsLoading(false);
+            if (!response.ok) {
+                throw new Error('Không thể tải dữ liệu hồ sơ.');
             }
-        };
 
-        fetchCases();
-    }, [navigate]);
+            const result = await response.json();
+            setCases(result.data.cases || []);
+            setTotalPages(result.data.totalPages || 1);
+            setTotalCases(result.data.totalCases || 0);
+
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+            fetchingRef.current = false;
+        }
+    }, [currentPage, searchTerm, caseTypeFilter, statusFilter, sortField, sortDirection, navigate]);
+
+    // Effect để fetch data
+    useEffect(() => {
+        fetchMyCases();
+    }, [fetchMyCases]);
+
+    // Effect để reset page khi filter thay đổi  
+    useEffect(() => {
+        if (!isInitialLoad) {
+            setCurrentPage(1);
+        } else {
+            setIsInitialLoad(false);
+        }
+    }, [searchTerm, statusFilter, caseTypeFilter, sortField, sortDirection]);
 
     // Hàm xử lý sorting
     const handleSort = (field) => {
@@ -145,55 +145,66 @@ function MyCases() {
         }
     };
 
-    // Lọc và sắp xếp dữ liệu
-    const filteredCases = useMemo(() => {
-        setCurrentPage(1);
-        let filtered = allCases.filter(c => {
-            const searchMatch = c.case_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                c.customer_name.toLowerCase().includes(searchTerm.toLowerCase());
-            const statusMatch = statusFilter ? c.state === statusFilter : true;
-            const caseTypeMatch = caseTypeFilter ? c.case_type === caseTypeFilter : true;
-            return searchMatch && statusMatch && caseTypeMatch;
-        });
+    // Hàm xử lý khi click vào row để xem chi tiết
+    const handleRowAction = (caseData) => {
+        navigate(`/case/${caseData.case_id}`);
+    };
 
-        // Áp dụng sorting nếu có
-        if (sortField) {
-            filtered.sort((a, b) => {
-                let aValue = a[sortField];
-                let bValue = b[sortField];
-
-                // Xử lý đặc biệt cho cột dư nợ (outstanding_debt)
-                if (sortField === 'outstanding_debt') {
-                    aValue = parseFloat(aValue) || 0;
-                    bValue = parseFloat(bValue) || 0;
-                }
-                // Xử lý đặc biệt cho cột ngày (last_modified_date)
-                else if (sortField === 'last_modified_date') {
-                    aValue = new Date(aValue);
-                    bValue = new Date(bValue);
-                }
-                // Xử lý cho các cột text
-                else if (typeof aValue === 'string') {
-                    aValue = aValue.toLowerCase();
-                    bValue = bValue.toLowerCase();
-                }
-
-                if (sortDirection === 'asc') {
-                    return aValue > bValue ? 1 : -1;
-                } else {
-                    return aValue < bValue ? 1 : -1;
-                }
-            });
+    // Định nghĩa columns cho DataTable
+    const tableColumns = [
+        {
+            key: 'customer_code',
+            title: 'Mã Khách hàng',
+            width: '150px',
+            render: (value) => (
+                <span style={{ fontWeight: '600', color: '#495057' }}>{value}</span>
+            )
+        },
+        {
+            key: 'customer_name',
+            title: 'Tên Khách hàng',
+            width: '300px',
+            render: (value) => (
+                <span style={{ fontWeight: '500' }}>{value}</span>
+            )
+        },
+        {
+            key: 'case_type',
+            title: 'Loại',
+            width: '120px',
+            sortValue: (value) => {
+                return value === 'internal' ? 1 : 2;
+            },
+            render: (value) => <CaseTypeBadge caseType={value} />
+        },
+        {
+            key: 'outstanding_debt',
+            title: 'Dư nợ (VND)',
+            width: '180px',
+            sortValue: (value) => {
+                const numValue = parseFloat(value);
+                return isNaN(numValue) ? 0 : numValue;
+            },
+            render: (value) => (
+                <span style={{ color: '#28a745', fontWeight: '600' }}>
+                    {formatCurrency(value)}
+                </span>
+            )
+        },
+        {
+            key: 'state',
+            title: 'Trạng thái',
+            width: '150px',
+            render: (value) => <StatusBadge status={value} />
+        },
+        {
+            key: 'last_modified_date',
+            title: 'Ngày cập nhật cuối',
+            width: '160px',
+            sortValue: (value) => new Date(value).getTime(),
+            render: (value) => new Date(value).toLocaleDateString('vi-VN')
         }
-
-        return filtered;
-    }, [searchTerm, statusFilter, caseTypeFilter, allCases, sortField, sortDirection]);
-
-    // Tính toán dữ liệu cho trang hiện tại
-    const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
-    const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-    const currentCases = filteredCases.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredCases.length / ITEMS_PER_PAGE);
+    ];
 
     if (isLoading) {
         return <div className={styles.loading}>Đang tải dữ liệu hồ sơ...</div>;
@@ -244,71 +255,24 @@ function MyCases() {
                 </div>
 
                 <div className={styles.tableContainer}>
-                    <div className={styles.tableWrapper}>
-                        <table className={styles.dataTable}>
-                            <thead>
-                                <tr>
-                                    <SortableHeader 
-                                        field="customer_code" 
-                                        currentSortField={sortField} 
-                                        sortDirection={sortDirection} 
-                                        onSort={handleSort}
-                                    >
-                                        Mã Khách hàng
-                                    </SortableHeader>
-                                    <SortableHeader 
-                                        field="customer_name" 
-                                        currentSortField={sortField} 
-                                        sortDirection={sortDirection} 
-                                        onSort={handleSort}
-                                    >
-                                        Tên Khách hàng
-                                    </SortableHeader>
-                                    <th>Loại</th>
-                                    <SortableHeader 
-                                        field="outstanding_debt" 
-                                        currentSortField={sortField} 
-                                        sortDirection={sortDirection} 
-                                        onSort={handleSort}
-                                    >
-                                        Dư nợ (VND)
-                                    </SortableHeader>
-                                    <th>Trạng thái</th>
-                                    <SortableHeader 
-                                        field="last_modified_date" 
-                                        currentSortField={sortField} 
-                                        sortDirection={sortDirection} 
-                                        onSort={handleSort}
-                                    >
-                                        Ngày cập nhật cuối
-                                    </SortableHeader>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentCases.length > 0 ? (
-                                    currentCases.map(c => (
-                                        <tr key={c.case_id}>
-                                            <td>{c.customer_code}</td>
-                                            <td>{c.customer_name}</td>
-                                            <td><CaseTypeBadge caseType={c.case_type} /></td>
-                                            <td>{parseFloat(c.outstanding_debt).toLocaleString('vi-VN')}</td>
-                                            <td><StatusBadge status={c.state} /></td>
-                                            <td>{new Date(c.last_modified_date).toLocaleDateString('vi-VN')}</td>
-                                            <td className={styles.actionCell}><Link to={`/case/${c.case_id}`}>Cập nhật</Link></td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="7" className={styles.noData}>Không tìm thấy hồ sơ nào.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                    <DataTable
+                        data={cases}
+                        columns={tableColumns}
+                        onRowAction={handleRowAction}
+                        actionButtonText="Cập nhật"
+                        actionWidth="120px"
+                        isLoading={isLoading}
+                        emptyMessage="Không tìm thấy hồ sơ nào."
+                        sortable={true}
+                        onSort={handleSort}
+                        sortField={sortField}
+                        sortDirection={sortDirection}
+                        serverSideSort={true}
+                    />
+                    
                     <div className={styles.paginationContainer}>
                         <div className={styles.pageInfo}>
-                            Hiển thị {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredCases.length)} trên tổng số {filteredCases.length} hồ sơ
+                            Hiển thị {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCases)} trên tổng số {totalCases} hồ sơ
                         </div>
                         <Pagination
                             currentPage={currentPage}
@@ -320,4 +284,7 @@ function MyCases() {
             </div>
         </>
     );
-} export default MyCases;
+}
+
+export default MyCases;
+

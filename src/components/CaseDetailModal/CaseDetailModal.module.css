@@ -14,7 +14,7 @@
     --card-bg: #ffffff;
     --text-color: #333;
 
-        /* Status colors - đồng bộ với DirectorDashboard */
+    /* Status colors - đồng bộ với DirectorDashboard */
     --status-being-followed-up: #1E88E5; /* Đang đôn đốc - xanh dương */
     --status-being-sued: #EF6C00; /* Đang khởi kiện - cam */
     --status-awaiting-judgment-effect: #F9A825; /* Chờ hiệu lực án - vàng */
@@ -403,8 +403,11 @@
     background: #f8f9fa;
     border-radius: 8px;
     border: 1px solid var(--border-color);
-    max-height: 400px;
-    overflow-y: auto;
+    position: relative;
+    min-height: 300px;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
 }
 
 .noUpdates {
@@ -412,6 +415,13 @@
     text-align: center;
     color: var(--text-light);
     font-style: italic;
+}
+
+/* Timeline Container with Scroll */
+.timelineContainer {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
 }
 
 /* Timeline */
@@ -620,4 +630,55 @@
 .statusDefault {
     background: #f8f9fa;
     color: var(--text-light);
+}
+
+/* Show More Button Styles */
+.showMoreContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.showMoreBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    color: rgb(174, 28, 63);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    /* box-shadow: 0 2px 8px rgba(218, 37, 29, 0.2); */
+}
+
+.showMoreBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    text-decoration: underline;
+}
+
+.showMoreBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.loadingIcon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.updateCount {
+    font-size: 14px;
+    color: var(--text-light);
+    font-weight: normal;
+    margin-left: 8px;
 }

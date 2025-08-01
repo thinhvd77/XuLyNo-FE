@@ -181,7 +181,11 @@ function DataTable({
                         {sortedData.map((row, index) => (
                             <tr key={row.id || index} className={styles.tableRow}>
                                 {columns.map((column) => (
-                                    <td key={column.key} className={styles.tableCell}>
+                                    <td 
+                                        key={column.key} 
+                                        className={styles.tableCell}
+                                        style={{ width: column.width }}
+                                    >
                                         {column.render 
                                             ? column.render(row[column.key], row)
                                             : row[column.key]

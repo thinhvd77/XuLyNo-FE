@@ -19,22 +19,23 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background: var(--body-bg);
+    background: white;
+    padding: 0 24px;
 }
 
 /* Page Header - Keep original style but optimize height */
 .pageHeader {
     flex-shrink: 0;
     margin-bottom: 0;
-    padding: 16px 24px;
+    padding: 10px 24px;
     background: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
+    /* border-bottom: 1px solid var(--border-color); */
 }
 
 .pageHeader h1 {
     font-size: 24px;
     font-weight: 600;
-    margin: 8px 0 0 0;
+    margin: 0;
     color: var(--text-color);
 }
 
@@ -46,7 +47,7 @@
 .breadcrumb ol {
     display: flex;
     list-style: none;
-    margin: 0 0 8px 0;
+    margin: 0;
     padding: 0;
     color: var(--text-light);
 }
@@ -74,9 +75,10 @@
     display: grid;
     grid-template-columns: 350px 1fr;
     gap: 24px;
-    padding: 20px 24px;
-    height: calc(100vh - 200px);
-    max-height: calc(900px - 80px);
+    padding: 10px 24px;
+    flex: 1;
+    /* height: calc(100vh - 90px);
+    max-height: calc(900px - 80px); */
     overflow: hidden;
     align-items: start;
 }
@@ -94,10 +96,12 @@
 /* Card styles - Original style with slight improvements */
 .card {
     background-color: var(--card-bg);
-    padding: 24px;
+    padding: 20px;
+    /* box-sizing: border-box; */
     border-radius: 8px;
     box-shadow: var(--card-shadow);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* transition: transform 0.2s ease, box-shadow 0.2s ease; */
+    border: 1px solid var(--border-color);
 }
 
 .card:hover {
@@ -106,7 +110,7 @@
 
 .card h3 {
     font-size: 16px;
-    margin: -24px -24px 16px -24px;
+    margin: -24px -20px 16px -24px;
     padding: 16px 24px;
     border-bottom: 1px solid var(--border-color);
     font-weight: 600;
@@ -115,8 +119,8 @@
 /* Info grid - Keep original layout */
 .infoGrid {
     display: grid;
-    grid-template-columns: 110px 1fr;
-    gap: 16px 8px;
+    grid-template-columns: 90px 1fr;
+    gap: 8px 8px;
 }
 
 .infoGrid dt {
@@ -151,6 +155,7 @@
     border-radius: 6px;
     font-size: 14px;
     font-family: inherit;
+    resize: none;
 }
 
 .button {
@@ -222,7 +227,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 100px);
 }
 
 /* Timeline - Only this section scrolls - Smaller height */
@@ -242,7 +247,7 @@
 
 .timelineItem {
     position: relative;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
 
 .timelineIcon {
@@ -287,7 +292,7 @@
 .divider {
     border: 0;
     border-top: 1px solid var(--border-color);
-    margin: 24px 0;
+    margin: 12px 0;
 }
 
 /* Document uploader - Keep original design */
@@ -1053,4 +1058,54 @@
         font-size: 11px;
         border-radius: 4px;
     }
+}
+
+/* Load More Button */
+.loadMoreContainer {
+    display: flex;
+    justify-content: center;
+    /* margin-top: 20px; */
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.loadMoreButton {
+    background: none;
+    color: rgb(174, 28, 63);
+    border: none;
+    /* padding: 10px 20px; */
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.loadMoreButton:hover:not(:disabled) {
+    text-decoration: underline;
+    transform: translateY(-1px);
+}
+
+.loadMoreButton:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Total Count Indicator */
+.totalCountContainer {
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.totalCount {
+    color: var(--text-light);
+    font-size: 13px;
+    font-style: italic;
+    background: #f8f9fa;
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
 }

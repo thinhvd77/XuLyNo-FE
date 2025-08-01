@@ -32,8 +32,10 @@
 }
 
 .mainContent {
-    flex-grow: 1; /* Cho phép content chiếm hết không gian còn lại */
+    max-height: 100vh;
+    flex: 1;
     padding: 24px;
+    padding-bottom: 0;
     padding-top: 12px;
     overflow-y: auto; /* Cho phép content tự cuộn nếu cần (dù layout con sẽ quản lý việc này) */
 }

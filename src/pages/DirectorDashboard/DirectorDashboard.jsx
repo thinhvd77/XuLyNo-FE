@@ -41,7 +41,9 @@ export default function DirectorDashboard() {
     const [filterType, setFilterType] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
     const [filterEmployee, setFilterEmployee] = useState('');
+    const [filterBranch, setFilterBranch] = useState('');
     const [employees, setEmployees] = useState([]);
+    const [branches, setBranches] = useState([]);
     const [selectedCaseId, setSelectedCaseId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [totalCases, setTotalCases] = useState(0);
@@ -76,18 +78,19 @@ export default function DirectorDashboard() {
         if (currentView === 'cases') {
             fetchAllCases();
         }
-    }, [currentView, currentPage, searchTerm, filterType, filterStatus, filterEmployee, sortField, sortDirection, currentUser]);
+    }, [currentView, currentPage, searchTerm, filterType, filterStatus, filterEmployee, filterBranch, sortField, sortDirection, currentUser]);
 
     // Reset trang về 1 khi thay đổi bộ lọc hoặc sort
     useEffect(() => {
         if (currentView === 'cases' && currentPage !== 1) {
             setCurrentPage(1);
         }
-    }, [searchTerm, filterType, filterStatus, filterEmployee, sortField, sortDirection]);
+    }, [searchTerm, filterType, filterStatus, filterEmployee, filterBranch, sortField, sortDirection]);
 
     // Fetch employees when component mounts
     useEffect(() => {
         fetchEmployees();
+        fetchBranches();
     }, []);
 
     const fetchDashboardStats = async () => {
@@ -129,7 +132,7 @@ export default function DirectorDashboard() {
         try {
             setIsLoading(true);
             // Tạo URL với các tham số sort
-            let url = `${API_ENDPOINTS.CASES.ALL_CASES}?page=${currentPage}&limit=${limit}&search=${searchTerm}&type=${filterType}&status=${filterStatus}&employee_code=${filterEmployee}`;
+            let url = `${API_ENDPOINTS.CASES.ALL_CASES}?page=${currentPage}&limit=${limit}&search=${searchTerm}&type=${filterType}&status=${filterStatus}&employee_code=${filterEmployee}&branch_code=${filterBranch}`;
             
             // Thêm tham số sort nếu có
             if (sortField) {
@@ -181,6 +184,26 @@ export default function DirectorDashboard() {
             }
         } catch (error) {
             console.error('Error fetching employees:', error);
+        }
+    };
+
+    const fetchBranches = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+            const response = await fetch(API_ENDPOINTS.USERS.BRANCHES_FOR_FILTER, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setBranches(result.branches || []);
+            }
+        } catch (error) {
+            console.error('Error fetching branches:', error);
         }
     };
 
@@ -616,6 +639,18 @@ export default function DirectorDashboard() {
                         {employees.map(employee => (
                             <option key={employee.employee_code} value={employee.employee_code}>
                                 {employee.fullname}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        value={filterBranch}
+                        onChange={(e) => setFilterBranch(e.target.value)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="">Tất cả chi nhánh</option>
+                        {branches.map(branch => (
+                            <option key={branch.branch_code} value={branch.branch_code}>
+                                {branch.branch_code === '6421' ? 'Hội sở' : branch.branch_code === '6221' ? 'Chi nhánh Nam Hoa' : 'Chi nhánh 6'}
                             </option>
                         ))}
                     </select>

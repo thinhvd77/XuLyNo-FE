@@ -15,6 +15,7 @@ import UserManagement from "./pages/UserManagement/UserManagement"; // Import tr
 import CaseDetail from "./pages/CaseDetail/CaseDetail";
 import AuthGuard from "./components/AuthGuard/AuthGuard";
 import DirectorLayout from "./components/DirectorLayout/DirectorLayout"; // Import layout dành cho Ban Giám Đốc
+import Report from "./pages/Report/index.js";
 
 
 function App() {
@@ -43,6 +44,18 @@ function App() {
                         <AuthGuard>
                             <Layout>
                                 <Dashboard />
+                            </Layout>
+                        </AuthGuard>
+                    }
+                />
+
+                {/* Route cho Dashboard - yêu cầu xác thực */}
+                <Route
+                    path="/report"
+                    element={
+                        <AuthGuard>
+                            <Layout>
+                                <Report />
                             </Layout>
                         </AuthGuard>
                     }
@@ -77,9 +90,9 @@ function App() {
                     path="/my-cases"
                     element={
                         <AuthGuard>
-                            <ManagerLayout>
+                            <DirectorLayout>
                                 <MyCases />
-                            </ManagerLayout>
+                            </DirectorLayout>
                         </AuthGuard>
                     }
                 />
@@ -108,9 +121,9 @@ function App() {
                     path="/case/:caseId"
                     element={
                         <AuthGuard>
-                            <UserLayout>
+                            <DirectorLayout>
                                 <CaseDetail />
-                            </UserLayout>
+                            </DirectorLayout>
                         </AuthGuard>
                     }
                 />
