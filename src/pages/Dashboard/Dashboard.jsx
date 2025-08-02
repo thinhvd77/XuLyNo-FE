@@ -45,6 +45,7 @@ function Dashboard() {
                 }
                 
                 const result = await response.json();
+                console.log(result)
                 setStats(result.data);
 
             } catch (err) {
@@ -59,7 +60,7 @@ function Dashboard() {
 
     // Chuẩn bị dữ liệu cho biểu đồ từ state
     const chartData = {
-        labels: stats?.officerStats.map(officer => officer.fullname) || [],
+        labels: stats?.officerStats.map(officer => officer.user_fullname) || [],
         datasets: [{
             label: 'Số hồ sơ',
             data: stats?.officerStats.map(officer => officer.caseCount) || [],

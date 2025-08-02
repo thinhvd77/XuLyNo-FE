@@ -113,6 +113,16 @@ export default function DirectorDashboard() {
             }
             
             const result = await response.json();
+
+            // Log branch-based access control information
+            if (result.metadata) {
+                console.log('Director Dashboard - Access Control Applied:', {
+                    branchCode: result.metadata.branchCode,
+                    isUnrestricted: result.metadata.isUnrestricted,
+                    calculationScope: result.metadata.calculationScope
+                });
+            }
+
             setStats(result.data);
 
         } catch (err) {
@@ -180,10 +190,24 @@ export default function DirectorDashboard() {
 
             if (response.ok) {
                 const result = await response.json();
+
+                // Log branch-based filtering information for debugging
+                if (result.metadata) {
+                    console.log('Employee filtering applied:', {
+                        totalEmployees: result.metadata.totalEmployees,
+                        branchFilter: result.metadata.branchFilter,
+                        isUnrestricted: result.metadata.isUnrestricted
+                    });
+                }
+
                 setEmployees(result.employees || []);
+            } else {
+                console.error('Failed to fetch employees:', response.statusText);
+                setEmployees([]);
             }
         } catch (error) {
             console.error('Error fetching employees:', error);
+            setEmployees([]);
         }
     };
 
@@ -630,6 +654,7 @@ export default function DirectorDashboard() {
                         <option value="debtSold">Bán nợ</option>
                         <option value="amcHired">Thuê AMC XLN</option>
                     </select>
+                    {}
                     <select
                         value={filterEmployee}
                         onChange={(e) => setFilterEmployee(e.target.value)}
@@ -642,18 +667,35 @@ export default function DirectorDashboard() {
                             </option>
                         ))}
                     </select>
-                    <select
-                        value={filterBranch}
-                        onChange={(e) => setFilterBranch(e.target.value)}
-                        className={styles.filterSelect}
-                    >
+                    { /* Chỉ hiển thị filter chi nhánh nếu BGĐ thuộc chi nhánh khác 6421 */ }
+                    {currentUser && currentUser.dept === 'BGĐ' && currentUser.branch_code === '6421' && (
+                        <select
+                            value={filterBranch}
+                            onChange={(e) => setFilterBranch(e.target.value)}
+                            className={styles.filterSelect}
+                        >
                         <option value="">Tất cả chi nhánh</option>
                         {branches.map(branch => (
                             <option key={branch.branch_code} value={branch.branch_code}>
                                 {branch.branch_code === '6421' ? 'Hội sở' : branch.branch_code === '6221' ? 'Chi nhánh Nam Hoa' : 'Chi nhánh 6'}
                             </option>
                         ))}
-                    </select>
+                    </select> )
+                    }
+                    { /* Nếu BGĐ thuộc chi nhánh khác 6421 thì không cần filter chi nhánh */ }
+
+                    {/*<select*/}
+                    {/*    value={filterBranch}*/}
+                    {/*    onChange={(e) => setFilterBranch(e.target.value)}*/}
+                    {/*    className={styles.filterSelect}*/}
+                    {/*>*/}
+                    {/*    <option value="">Tất cả chi nhánh</option>*/}
+                    {/*    {branches.map(branch => (*/}
+                    {/*        <option key={branch.branch_code} value={branch.branch_code}>*/}
+                    {/*            {branch.branch_code === '6421' ? 'Hội sở' : branch.branch_code === '6221' ? 'Chi nhánh Nam Hoa' : 'Chi nhánh 6'}*/}
+                    {/*        </option>*/}
+                    {/*    ))}*/}
+                    {/*</select>*/}
                 </div>
             </div>
 

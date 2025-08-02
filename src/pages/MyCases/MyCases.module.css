@@ -29,6 +29,8 @@
 /* Page Header - đồng bộ với Dashboard */
 .pageHeader {
     margin-bottom: 12px;
+    display: flex;
+    align-items: center;
 }
 .pageHeader h1 {
     font-size: 25px;
@@ -36,11 +38,8 @@
     padding-top: 12px;
     padding-left: 24px;
     margin: 0;
+    margin-right: auto;
     color: var(--text-color);
-}
-.pageHeader p {
-    color: var(--text-light);
-    margin: 4px 0 0 0;
 }
 
 /* Card wrapper */
@@ -384,4 +383,18 @@
 .customSelectWrapper:focus-within::after {
     border-top-color: var(--primary-color);
     transform: translateY(-50%) rotate(180deg);
+}
+
+.backLink {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    padding-right: 24px;
+}
+.backLink:hover {
+    text-decoration: underline;
 }

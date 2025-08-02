@@ -109,9 +109,9 @@ function MyCases() {
             }
 
             const result = await response.json();
-            setCases(result.data.cases || []);
-            setTotalPages(result.data.totalPages || 1);
-            setTotalCases(result.data.totalCases || 0);
+            setCases(result.cases || []);
+            setTotalPages(result.totalPages || 1);
+            setTotalCases(result.totalCases || 0);
 
         } catch (err) {
             setError(err.message);
@@ -218,6 +218,13 @@ function MyCases() {
         <>
             <div className={styles.pageHeader}>
                 <h1>Hồ sơ của tôi</h1>
+                <Link to="/manager-dashboard" className={styles.backLink}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.backIcon}>
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                        <line x1="20" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Quay lại Dashboard
+                </Link>
             </div>
 
             <div className={styles.card}>
